@@ -1,2 +1,3 @@
 @ECHO OFF
-MKLINK /H ".\Gloom.Server\OpFrame.cs" ".\Gloom.Client\OpFrame.cs"
+MKLINK /H ".\Gloom.Server\SharedProtocol.cs" ".\Gloom.Client\SharedProtocol.cs"
+

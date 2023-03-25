@@ -2,8 +2,6 @@
 
 namespace Gloom
 {
-
-
 	internal class MessageDecryptor
 	{
 		private readonly Aes aes = Aes.Create();
