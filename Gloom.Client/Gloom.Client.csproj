@@ -5,10 +5,34 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="InputLog\**" />
+    <Compile Remove="Screencapture\**" />
+    <EmbeddedResource Remove="InputLog\**" />
+    <EmbeddedResource Remove="Screencapture\**" />
+    <None Remove="InputLog\**" />
+    <None Remove="Screencapture\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ActiveWindowInfo.cs" />
+    <Compile Remove="FeckdoorProgram.cs" />
+    <Compile Remove="Kernel32.cs" />
+    <Compile Remove="ModifierKey.cs" />
+    <Compile Remove="User32.cs" />
+    <Compile Remove="VirtualKey.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Features\RAT\" />
+    <Folder Include="Features\Stealer\FileIO\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="7.0.0" />
   </ItemGroup>
 
 </Project>

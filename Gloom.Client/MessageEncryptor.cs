@@ -1,13 +1,22 @@
-﻿using System.Security.Cryptography;
+﻿using System.Net.Sockets;
+using System.Net.WebSockets;
+using System.Security.Cryptography;
+using System.Threading.Channels;
 
-namespace Gloom
+namespace Gloom.Client
 {
-	internal class MessageDecryptor
+	internal class MessageEncryptor : IDisposable
 	{
 		private readonly Aes aes = Aes.Create();
 		private readonly RSA rsa;
+		private bool disposedValue;
 
-		public MessageDecryptor() => rsa = RSA.Create(4096); // generate keypair
+		internal ICryptoTransform Decryptor { get; private set; }
+
+		public MessageEncryptor()
+		{
+			rsa = RSA.Create(4096); // generate keypair
+		}
 
 		public byte[] ExportPublic() => rsa.ExportRSAPublicKey();
 
@@ -26,10 +35,25 @@ namespace Gloom
 			aes.KeySize = 256; // AES-256
 			aes.Key = secret[0..32];
 			aes.IV = secret[32..48];
+			Decryptor = aes.CreateDecryptor();
 		}
 
 		public byte[] Encrypt(byte[] plain) => aes.CreateEncryptor().TransformFinalBlock(plain, 0, plain.Length);
 
-		public byte[] Decrypt(byte[] encrypted) => aes.CreateDecryptor().TransformFinalBlock(encrypted, 0, encrypted.Length);
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposedValue)
+			{
+				if (disposing)
+					Decryptor?.Dispose();
+				disposedValue = true;
+			}
+		}
+
+		public void Dispose()
+		{
+			Dispose(disposing: true);
+			GC.SuppressFinalize(this);
+		}
 	}
 }

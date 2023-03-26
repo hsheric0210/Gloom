@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace Gloom
+namespace Gloom.Server
 {
 	internal class MessageEncryptor
 	{

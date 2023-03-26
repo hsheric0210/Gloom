@@ -1,4 +1,4 @@
-﻿namespace Gloom;
+﻿namespace Gloom.Client;
 internal interface IMessageHandler
 {
 	public Guid[] AcceptedOps { get; }

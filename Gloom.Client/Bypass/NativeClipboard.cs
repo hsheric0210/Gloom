@@ -1,4 +1,4 @@
-﻿namespace Gloom.Bypass;
+﻿namespace Gloom.Client.Bypass;
 internal class NativeClipboard
 {
 }
