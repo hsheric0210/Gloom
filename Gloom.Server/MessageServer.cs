@@ -1,7 +1,6 @@
 ﻿using Fleck;
 using Serilog;
 using System.Collections.Immutable;
-using System.Text;
 
 namespace Gloom.Server
 {

@@ -8,5 +8,5 @@ public abstract class FeatureBase : IMessageHandler
 
 	public abstract Task HandleAsync(Guid op, byte[] data);
 
-	protected async Task SendAsync<T>(Guid op, T data, bool eom) where T : struct => await sender.SendAsync(op, data, eom);
+	protected async Task SendAsync(Guid op, object data, bool eom) => await sender.SendAsync(op, data, eom);
 }

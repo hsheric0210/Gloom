@@ -11,7 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Commands.md = Commands.md
 		Protocol.md = Protocol.md
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Gloom.Shared", "Gloom.Shared\Gloom.Shared.shproj", "{14CCD117-B4C5-413F-BBA8-CB4863F9C4DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,5 +36,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FF3AEF18-EA8F-4E43-87F9-7D99209A62E3}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Gloom.Shared\Gloom.Shared.projitems*{14ccd117-b4c5-413f-bba8-cb4863f9c4da}*SharedItemsImports = 13
+		Gloom.Shared\Gloom.Shared.projitems*{9cd2bf1b-04c6-4e3e-9087-10d63b45ed57}*SharedItemsImports = 5
+		Gloom.Shared\Gloom.Shared.projitems*{f8d06567-c3bf-4f97-83dc-6d73fc1f4e14}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

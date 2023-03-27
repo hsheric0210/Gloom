@@ -30,9 +30,15 @@ Prefixes not listed here are considered as 'Equals(`~`)'
 |`pslist`|=127.0.0.1:1234|C:\\Logs\\Env.log|Environment variable list of '127.0.0.1:1234' saved to `C:\Logs\Env.log`|
 
 
-### `pslist` - Process list dump
-|`pslist`|Target selector|(Optional) save to specified file||
+### `wmi` - WMI information dump
+|`wmi`|Target selector|Info group|(Optional) save to specified file||
 |:---:|:---:|:---:|---:|
-|`pslist`|=127.0.0.1:1234||Prints the list of processes of client '127.0.0.1:1234'|
-|`pslist`|=127.0.0.1:1234|C:\\Logs\\Processes.log|Process list of '127.0.0.1:1234' saved to `C:\Logs\Processes.log`|
 
+
+## Info group
+|Group name|Description|
+|:---:|:---|
+|ps|The list of process currently running on the client computor|
+|svc|The list of services registered on the client computor|
+|hw|Hardware information of the client computor|
+|dsk|Disk/Drive information of the client computor|

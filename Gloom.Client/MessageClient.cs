@@ -1,8 +1,6 @@
 ﻿using System.Buffers;
 using System.Net.WebSockets;
-using System.Reflection;
 using System.Security.Cryptography;
-using System;
 
 namespace Gloom.Client
 {
@@ -55,7 +53,7 @@ namespace Gloom.Client
 
 		public void RegisterHandler(IMessageHandler handler) => handlerRegistry.Add(handler);
 
-		public async Task SendAsync<T>(Guid opCode, T data, bool eom) where T : struct
+		public async Task SendAsync(Guid opCode, object data, bool eom)
 		{
 			if (decryptor == null)
 				throw new InvalidOperationException("Client handshake not finished yet. (Message encryptor not available)");

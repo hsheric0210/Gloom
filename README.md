@@ -15,7 +15,7 @@ Use VM(VirtualBox, VMware, etc.) or Sandbox(Sandboxie, etc.) to execute the clie
 * [ ] Clipboard Logger
 * [ ] Screenshot Capturer
 * [ ] Remote DLL Injector
-* [ ] Remote Code Execution (Upload executable and execute remotely)
+* [ ] Remote Code Execution (Upload executable and execute remotely / Compile-and-Execute C# or VisualBasic.NET code with CodeDom)
 * [ ] Remote Process Terminator / Memory Dumper
 * [ ] Client Updater
 * [ ] ZipBomb
