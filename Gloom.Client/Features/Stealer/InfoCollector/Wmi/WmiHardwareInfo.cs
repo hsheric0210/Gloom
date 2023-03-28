@@ -13,7 +13,7 @@ internal class WmiHardwareInfo : WmiInfo
 		{
 			Bios = Crawl<Win32Bios>("Win32_Bios")[0],
 			BaseBoard = Crawl<Win32BaseBoard>("Win32_BaseBoard")[0],
-			Keyboards = Crawl<Win32Keyboard>("Win32_Keyboards"),
+			Keyboards = Crawl<Win32Keyboard>("Win32_Keyboard"),
 			NetworkAdapters = Crawl<Win32NetworkAdapter>("Win32_NetworkAdapter"),
 			PhysicalMemories = Crawl<Win32PhysicalMemory>("Win32_PhysicalMemory"),
 			PointingDevices = Crawl<Win32PointingDevice>("Win32_PointingDevice"),
