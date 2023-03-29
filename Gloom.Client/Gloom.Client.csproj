@@ -27,14 +27,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Features\RAT\" />
-		<Folder Include="Features\Stealer\FileIO\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.0" />
 		<PackageReference Include="NSec.Cryptography" Version="22.4.0" />
 		<PackageReference Include="System.Management" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Features\Inject\" />
 	</ItemGroup>
 
 	<Import Project="..\Gloom.Shared\Gloom.Shared.projitems" Label="Shared" />

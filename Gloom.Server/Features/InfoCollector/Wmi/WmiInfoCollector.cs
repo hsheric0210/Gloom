@@ -1,7 +1,7 @@
 ﻿using Gloom.WmiOps;
 using Serilog;
 
-namespace Gloom.Server.Features.Stealer.InfoCollector.Wmi;
+namespace Gloom.Server.Features.InfoCollector.Wmi;
 internal class WmiInfoCollector : FeatureBase
 {
 	public override Guid[] AcceptedOps => new Guid[] { OpCodes.WmiInfoResponse };

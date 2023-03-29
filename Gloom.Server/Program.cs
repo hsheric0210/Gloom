@@ -1,6 +1,6 @@
 ﻿using Gloom.Server.Features;
-using Gloom.Server.Features.Stealer.InfoCollector;
-using Gloom.Server.Features.Stealer.InfoCollector.Wmi;
+using Gloom.Server.Features.InfoCollector;
+using Gloom.Server.Features.InfoCollector.Wmi;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using System.Text;

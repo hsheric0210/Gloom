@@ -32,6 +32,7 @@ namespace Gloom.Client
 				try
 				{
 					await socket.ConnectAsync(address, cancel.Token);
+					Console.WriteLine("Connected 2 " + address);
 					await SendClientHello();
 					while (!cancel.IsCancellationRequested && socket.State == WebSocketState.Open)
 					{

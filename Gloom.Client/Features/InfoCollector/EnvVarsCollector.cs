@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Gloom.Client.Features.Stealer.InfoCollector;
+namespace Gloom.Client.Features.InfoCollector;
 internal class EnvVarsCollector : FeatureBase
 {
 	public override Guid[] AcceptedOps => new Guid[] { OpCodes.EnvVarsRequest };

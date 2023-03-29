@@ -1,6 +1,6 @@
 ﻿using Gloom.WmiOps;
 
-namespace Gloom.Client.Features.Stealer.InfoCollector.Wmi;
+namespace Gloom.Client.Features.InfoCollector.Wmi;
 internal class WmiProcessList : WmiInfo
 {
 	public WmiProcessList() : base(WmiOpCodes.ProcessList)

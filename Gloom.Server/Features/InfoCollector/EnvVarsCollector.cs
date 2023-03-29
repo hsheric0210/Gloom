@@ -1,6 +1,6 @@
 ﻿using Serilog;
 
-namespace Gloom.Server.Features.Stealer.InfoCollector;
+namespace Gloom.Server.Features.InfoCollector;
 internal class EnvVarsCollector : FeatureBase
 {
     public override Guid[] AcceptedOps => new Guid[] { OpCodes.EnvVarsResponse };

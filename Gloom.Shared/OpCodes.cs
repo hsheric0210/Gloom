@@ -11,7 +11,6 @@ public static class OpCodes
 	#region Handshake
 	public readonly static Guid ClientHello = Guid.Parse("033f8e43-ddee-4536-936e-71f94c599033");
 	public readonly static Guid ServerHello = Guid.Parse("77b710eb-6507-4034-9ac6-c17d50e46b26");
-	public static readonly Guid ClientKeyExchange = Guid.Parse("b41b1d79-9975-4e42-9a38-d7f68fc6832d");
 	#endregion
 
 	#region Global
@@ -54,8 +53,10 @@ public static class OpCodes
 
 	#region FileIO
 	public static readonly Guid DownloadFileRequest = Guid.Parse("c5c091c2-3605-4747-a84d-511c17f5fb23");
+	public static readonly Guid DownloadFileChunkResponse = Guid.Parse("397c3e2a-13fb-41ca-97c2-cdc1111e79d4");
 	public static readonly Guid DownloadFileResponse = Guid.Parse("5ee96e53-0841-4c2e-bbbe-d14bb230a6f6");
 	public static readonly Guid UploadFileRequest = Guid.Parse("f628bc06-a615-46d5-b43f-3b7e8e33b8da");
+	public static readonly Guid UploadFileChunkRequest = Guid.Parse("3e8fa7f2-c195-48e8-980d-55dd3da1ae2a");
 	public static readonly Guid UploadFileResponse = Guid.Parse("bc4bba65-284c-4f39-9897-26ecb0cf307d");
 	public static readonly Guid DeleteFileRequest = Guid.Parse("9b886262-191d-4b77-815b-00fe5d3dc090");
 	public static readonly Guid DeleteFileResponse = Guid.Parse("1d4df5ea-7077-49df-a723-6bdaaa3835ca");

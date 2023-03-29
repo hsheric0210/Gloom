@@ -1,7 +1,7 @@
 ﻿using System.Management;
 using System.Reflection;
 
-namespace Gloom.Client.Features.Stealer.InfoCollector.Wmi;
+namespace Gloom.Client.Features.InfoCollector.Wmi;
 internal abstract class WmiInfo
 {
 	internal Guid WmiOp { get; }

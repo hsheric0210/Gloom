@@ -1,4 +1,4 @@
-﻿namespace Gloom.Client.Features.Stealer.ClipboardLogger;
+﻿namespace Gloom.Client.Features.ClipboardLogger;
 internal class ClipboardLoggerBase : FeatureBase
 {
 	public override Guid[] AcceptedOps => new Guid[] { OpCodes.ClipboardLoggerSettingRequest, OpCodes.ClipboardLogRequest };
