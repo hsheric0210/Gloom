@@ -9,8 +9,9 @@ public static class OpCodes
 	//public readonly static Guid Test = Guid.Parse("09a3e64a-f87a-48d6-9760-fd2d61bd31e5");
 
 	#region Handshake
-	public readonly static Guid ClientHandshake = Guid.Parse("033f8e43-ddee-4536-936e-71f94c599033");
-	public readonly static Guid ServerHandshake = Guid.Parse("77b710eb-6507-4034-9ac6-c17d50e46b26");
+	public readonly static Guid ClientHello = Guid.Parse("033f8e43-ddee-4536-936e-71f94c599033");
+	public readonly static Guid ServerHello = Guid.Parse("77b710eb-6507-4034-9ac6-c17d50e46b26");
+	public static readonly Guid ClientKeyExchange = Guid.Parse("b41b1d79-9975-4e42-9a38-d7f68fc6832d");
 	#endregion
 
 	#region Global

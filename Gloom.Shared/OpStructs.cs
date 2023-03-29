@@ -1,21 +1,26 @@
 ﻿using System.Runtime.InteropServices;
+
 namespace Gloom;
 
 public static class OpStructs
 {
 	#region Handshake
 	[Serializable]
-	public struct ClientHandshake
+	public struct ClientHello // SSL Client Hello + Client Key Exchange
 	{
-		public string PcName;
-		public string UserName;
-		public byte[] PublicKey;
+		public string Identifier { get; set; }
+		public byte[] ClientRandom { get; set; }
+		public byte[] DHParameter;
+		public int KDFIterations { get; set; }
+		public int KDFMemorySize { get; set; }
+		public int KDFParallelism { get; set; }
 	}
 
 	[Serializable]
-	public struct ServerHandshake
+	public struct ServerHello // SSL Server Hello + Server Key Exchange
 	{
-		public byte[] EncryptedSecret;
+		public byte[] ServerRandom { get; set; }
+		public byte[] DHParameter { get; set; }
 	}
 	#endregion
 

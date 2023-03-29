@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.Net.WebSockets;
-using System.Security.Cryptography;
 
 namespace Gloom.Client
 {
@@ -14,7 +13,7 @@ namespace Gloom.Client
 		private readonly Uri address;
 		private readonly CancellationTokenSource cancel;
 		private ClientWebSocket socket;
-		private MessageEncryptor? decryptor;
+		private MessageEncryptor? encryptor;
 
 		public MessageClient(Uri address)
 		{
@@ -33,7 +32,7 @@ namespace Gloom.Client
 				try
 				{
 					await socket.ConnectAsync(address, cancel.Token);
-					await Handshake();
+					await SendClientHello();
 					while (!cancel.IsCancellationRequested && socket.State == WebSocketState.Open)
 					{
 						await ProcessMessages(socket);
@@ -55,19 +54,19 @@ namespace Gloom.Client
 
 		public async Task SendAsync(Guid opCode, object data, bool eom)
 		{
-			if (decryptor == null)
+			if (encryptor == null)
 				throw new InvalidOperationException("Client handshake not finished yet. (Message encryptor not available)");
-			await socket.SendAsync(decryptor.Encrypt(opCode.NewPayload(StructConvert.Struct2Bytes(data))), WebSocketMessageType.Binary, eom, cancel.Token);
+			await socket.SendAsync(encryptor.Encrypt(opCode.NewPayload(StructConvert.Struct2Bytes(data))), WebSocketMessageType.Binary, eom, cancel.Token);
 		}
 
 		private async Task ProcessMessages(ClientWebSocket socket)
 		{
-			if (socket.State == WebSocketState.Open)
+			if (socket.State == WebSocketState.Open && encryptor is not null)
 			{
 				try
 				{
-					using var decryptedStream = new MemoryStream();
-					using (var encryptedStream = new MemoryStream())
+					byte[] payload;
+					using (var encryptedStream = new MemoryStream(ReadBufferSize))
 					{
 						// Read all data from socket & Dump it into one stream
 						var buffer = ArrayPool<byte>.Shared.Rent(ReadBufferSize);
@@ -87,13 +86,9 @@ namespace Gloom.Client
 							ArrayPool<byte>.Shared.Return(buffer, true);
 						}
 
-						// Perform decryption
-						encryptedStream.Position = 0; // Reset cursor
-						using var cryptoStream = new CryptoStream(encryptedStream, decryptor!.Decryptor, CryptoStreamMode.Read);
-						await cryptoStream.CopyToAsync(decryptedStream, ReadBufferSize);
+						payload = encryptor.Decrypt(encryptedStream.ToArray());
 					}
 
-					var payload = decryptedStream.GetBuffer();
 					Guid opcode = payload.GetGuid();
 					var data = payload.GetData();
 					try
@@ -116,24 +111,19 @@ namespace Gloom.Client
 			}
 		}
 
-		private async Task Handshake()
+		private async Task SendClientHello()
 		{
 			// create my message encryptor
-			decryptor = new MessageEncryptor();
+			encryptor = new MessageEncryptor();
 
 			// Send client Handshake
-			var clientHandshake = new OpStructs.ClientHandshake
-			{
-				PcName = Environment.MachineName,
-				UserName = Environment.UserName,
-				PublicKey = decryptor.ExportPublic()
-			};
-			await socket.SendAsync(OpCodes.ClientHandshake.NewPayload(StructConvert.Struct2Bytes(clientHandshake)), WebSocketMessageType.Binary, true, cancel.Token);
+			var id = Environment.UserName + '@' + Environment.MachineName;
+			await socket.SendAsync(OpCodes.ClientHello.NewPayload(StructConvert.Struct2Bytes(encryptor.MakeClientHello(id))), WebSocketMessageType.Binary, true, cancel.Token);
 
 			// Receive server handshake
 			var serverHs = new byte[8192]; // FIXME: Variable length buffer
 			await socket.ReceiveAsync(serverHs, cancel.Token);
-			decryptor.SetSecretKey(StructConvert.Bytes2Struct<OpStructs.ServerHandshake>(serverHs.GetData()).EncryptedSecret);
+			encryptor.ReceiveServerHello(StructConvert.Bytes2Struct<OpStructs.ServerHello>(serverHs.GetData()));
 		}
 
 		public async Task Finish()

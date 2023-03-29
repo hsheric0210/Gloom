@@ -1,34 +1,52 @@
-﻿using System.Security.Cryptography;
+﻿using NSec.Cryptography;
+using System.Security.Cryptography;
 
 namespace Gloom.Server
 {
 	internal class MessageEncryptor
 	{
-		private readonly Aes aes;
-		private readonly RSA rsa = RSA.Create(4096);
+		private readonly byte[] serverRandom;
+		private readonly Key serverKey;
+
+		private AesGcm? aes;
 
 		public MessageEncryptor()
 		{
-			aes = Aes.Create();
-			aes.Mode = CipherMode.CBC;
-			aes.Padding = PaddingMode.ISO10126;
-			aes.KeySize = 256; // AES-256
+			serverRandom = RandomNumberGenerator.GetBytes(64);
+			serverKey = Key.Create(KeyAgreementAlgorithm.X25519, new KeyCreationParameters { ExportPolicy = KeyExportPolicies.AllowPlaintextExport });
 		}
 
-		public byte[] ExportPublic() => rsa.ExportRSAPublicKey();
-
-		public void SetPublicKey(byte[] publicKey) => rsa.ImportRSAPublicKey(publicKey, out _);
-
-		public byte[] ExportEncryptedSecret()
+		public void ReceiveClientHello(OpStructs.ClientHello clientHello)
 		{
-			var secret = new byte[446];
-			aes.Key.CopyTo(secret, 0);
-			aes.IV.CopyTo(secret, 32);
-			return rsa.Encrypt(secret, RSAEncryptionPadding.Pkcs1);
+			var clientKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, clientHello.DHParameter, KeyBlobFormat.PkixPublicKey);
+			SharedSecret? agreedKey = KeyAgreementAlgorithm.X25519.Agree(serverKey, clientKey, new SharedSecretCreationParameters { ExportPolicy = KeyExportPolicies.AllowPlaintextExport });
+			if (agreedKey == null)
+				throw new CryptographicException("Key agreement failed");
+
+			var key = agreedKey.Export(SharedSecretBlobFormat.NSecSharedSecret);
+
+			using var stream = new MemoryStream(64);
+			stream.Write(key);
+			stream.Write(clientHello.ClientRandom);
+			stream.Write(serverRandom);
+			var argon2 = new Konscious.Security.Cryptography.Argon2id(stream.GetBuffer())
+			{
+				Salt = clientHello.ClientRandom[0..16],
+				Iterations = Math.Min(clientHello.KDFIterations, CryptoLimits.MaxKDFIterations),
+				MemorySize = Math.Min(clientHello.KDFMemorySize, CryptoLimits.MaxKDFMemorySize),
+				DegreeOfParallelism = Math.Clamp(clientHello.KDFParallelism, CryptoLimits.MinKDFParallelism, CryptoLimits.MaxKDFParallelism)
+			};
+			aes = new AesGcm(argon2.GetBytes(32));
 		}
 
-		public byte[] Encrypt(byte[] plain) => aes.CreateEncryptor().TransformFinalBlock(plain, 0, plain.Length);
+		public OpStructs.ServerHello MakeServerHello() => new OpStructs.ServerHello
+		{
+			ServerRandom = serverRandom,
+			DHParameter = serverKey.Export(KeyBlobFormat.PkixPublicKey)
+		};
 
-		public byte[] Decrypt(byte[] encrypted) => aes.CreateDecryptor().TransformFinalBlock(encrypted, 0, encrypted.Length);
+		public byte[] Encrypt(byte[] plaintext) => aes.EncryptSimple(plaintext);
+
+		public byte[] Decrypt(byte[] ciphertext) => aes.DecryptSimple(ciphertext);
 	}
 }

@@ -1,56 +1,64 @@
-﻿using System.Security.Cryptography;
+﻿using NSec.Cryptography;
+using System.Security.Cryptography;
 
 namespace Gloom.Client
 {
-	internal class MessageEncryptor : IDisposable
+	internal class MessageEncryptor
 	{
-		private readonly Aes aes = Aes.Create();
-		private readonly RSA rsa;
-		private bool disposedValue;
+		private readonly byte[] clientRandom;
+		private readonly Key clientKey;
+		private readonly int kdfIterations;
+		private readonly int kdfMemorySize;
+		private readonly int kdfParallelism;
 
-		internal ICryptoTransform Decryptor { get; private set; }
+		private AesGcm? aes;
 
 		public MessageEncryptor()
 		{
-			rsa = RSA.Create(4096); // generate keypair
+			clientRandom = RandomNumberGenerator.GetBytes(64);
+			clientKey = Key.Create(KeyAgreementAlgorithm.X25519, new KeyCreationParameters { ExportPolicy = KeyExportPolicies.AllowPlaintextExport });
+
+			var threads = Environment.ProcessorCount;
+			kdfIterations = Math.Min(24, CryptoLimits.MaxKDFIterations);
+			kdfMemorySize = Math.Min(RandomNumberGenerator.GetInt32(64, 256) * 1024, CryptoLimits.MaxKDFMemorySize); // 32 ~ 128MB
+			kdfParallelism = Math.Clamp(RandomNumberGenerator.GetInt32(100) * threads / 100, CryptoLimits.MinKDFParallelism, CryptoLimits.MaxKDFParallelism);
 		}
 
-		public byte[] ExportPublic() => rsa.ExportRSAPublicKey();
-
-		public void SetSecretKey(byte[] encryptedSecret)
+		public OpStructs.ClientHello MakeClientHello(string identifier) => new()
 		{
-			var secret = rsa.Decrypt(encryptedSecret, RSAEncryptionPadding.Pkcs1);
-			if (secret.Length < 48)
+			Identifier = identifier,
+			ClientRandom = clientRandom,
+			DHParameter = clientKey.Export(KeyBlobFormat.PkixPublicKey),
+			KDFIterations = kdfIterations,
+			KDFMemorySize = kdfMemorySize,
+			KDFParallelism = kdfParallelism
+		};
+
+		public void ReceiveServerHello(OpStructs.ServerHello serverHello)
+		{
+			var serverKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, serverHello.DHParameter, KeyBlobFormat.PkixPublicKey);
+			SharedSecret? agreedKey = KeyAgreementAlgorithm.X25519.Agree(clientKey, serverKey, new SharedSecretCreationParameters { ExportPolicy = KeyExportPolicies.AllowPlaintextExport });
+			if (agreedKey is null)
+				throw new CryptographicException("Key agreement failed");
+
+			var key = agreedKey.Export(SharedSecretBlobFormat.NSecSharedSecret);
+			using var stream = new MemoryStream(64);
+			stream.Write(key);
+			stream.Write(clientRandom);
+			stream.Write(serverHello.ServerRandom);
+
+			var argon2 = new Konscious.Security.Cryptography.Argon2id(stream.GetBuffer())
 			{
-#if DEBUG
-				Console.WriteLine("Secret too short - expected at least 48, received " + secret.Length);
-#endif
-				return;
-			}
-			aes.Mode = CipherMode.CBC;
-			aes.Padding = PaddingMode.ISO10126;
-			aes.KeySize = 256; // AES-256
-			aes.Key = secret[0..32];
-			aes.IV = secret[32..48];
-			Decryptor = aes.CreateDecryptor();
+				Salt = clientRandom[0..16],
+				Iterations = Math.Min(kdfIterations, CryptoLimits.MaxKDFIterations),
+				MemorySize = Math.Min(kdfMemorySize, CryptoLimits.MaxKDFMemorySize),
+				DegreeOfParallelism = Math.Clamp(kdfParallelism, CryptoLimits.MinKDFParallelism, CryptoLimits.MaxKDFParallelism)
+			};
+			aes = new AesGcm(argon2.GetBytes(32));
 		}
 
-		public byte[] Encrypt(byte[] plain) => aes.CreateEncryptor().TransformFinalBlock(plain, 0, plain.Length);
+		public byte[] Encrypt(byte[] plaintext) => aes.EncryptSimple(plaintext);
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposedValue)
-			{
-				if (disposing)
-					Decryptor?.Dispose();
-				disposedValue = true;
-			}
-		}
-
-		public void Dispose()
-		{
-			Dispose(disposing: true);
-			GC.SuppressFinalize(this);
-		}
+		public byte[] Decrypt(byte[] ciphertext) => aes.DecryptSimple(ciphertext);
 	}
 }

@@ -7,18 +7,17 @@ namespace Gloom.Server
 	internal class MessageServer : IMessageSender
 	{
 		private readonly ISet<IMessageHandler> handlerRegistry = new HashSet<IMessageHandler>();
-		private readonly List<IWebSocketConnection> sockets = new();
+		private readonly IList<IWebSocketConnection> sockets = new List<IWebSocketConnection>();
+		private readonly IDictionary<IWebSocketConnection, MessageEncryptor> encryptors = new Dictionary<IWebSocketConnection, MessageEncryptor>();
 		private readonly WebSocketServer server;
-		private readonly MessageEncryptor encryptor;
 
 		public async Task<int> SendAsync<T>(Filter filter, Guid opCode, T data, bool eom) where T : struct
 		{
-			var payload = encryptor.Encrypt(opCode.NewPayload(StructConvert.Struct2Bytes(data)));
 			var targets = sockets.Where(sock => filter.IsMatch(sock.ConnectionInfo.Host)).ToImmutableList();
 			var tasks = new List<Task>(targets.Count);
 
 			foreach (IWebSocketConnection socket in targets)
-				tasks.Add(socket.Send(payload));
+				tasks.Add(socket.Send(encryptors[socket].Encrypt(opCode.NewPayload(StructConvert.Struct2Bytes(data)))));
 
 			await Task.WhenAll(tasks);
 			return targets.Count;
@@ -26,7 +25,6 @@ namespace Gloom.Server
 
 		public MessageServer(string address)
 		{
-			encryptor = new MessageEncryptor();
 			server = new WebSocketServer(address);
 			server.ListenerSocket.NoDelay = true;
 			server.Start(Configure);
@@ -34,7 +32,7 @@ namespace Gloom.Server
 
 		public void Configure(IWebSocketConnection socket)
 		{
-			FleckLog.Level = LogLevel.Debug;
+			//FleckLog.Level = LogLevel.Debug;
 			socket.OnOpen = () => OnOpen(socket);
 			socket.OnBinary = data => OnMessage(socket, data);
 			socket.OnClose = () => OnClose(socket);
@@ -44,6 +42,7 @@ namespace Gloom.Server
 		public void OnOpen(IWebSocketConnection socket)
 		{
 			Console.WriteLine("A pc connected.");
+			encryptors[socket] = new MessageEncryptor();
 			sockets.Add(socket);
 		}
 
@@ -51,23 +50,23 @@ namespace Gloom.Server
 		{
 			Console.WriteLine("Socket error: " + ex);
 			sockets.Remove(socket);
+			encryptors.Remove(socket);
 		}
 
 		public void OnMessage(IWebSocketConnection socket, byte[] payload)
 		{
 			var host = socket.ConnectionInfo.Host;
 			Guid guid = payload.GetGuid();
-			if (guid == OpCodes.ClientHandshake)
+			if (guid == OpCodes.ClientHello)
 			{
-				OpStructs.ClientHandshake hs = StructConvert.Bytes2Struct<OpStructs.ClientHandshake>(payload.GetData());
-				Log.Information("Client {client} (PC {pcName}, User {userName}) is trying to connect.", host, hs.PcName, hs.UserName);
-				encryptor.SetPublicKey(hs.PublicKey);
-				var serverHs = new OpStructs.ServerHandshake { EncryptedSecret = encryptor.ExportEncryptedSecret() };
-				socket.Send(OpCodes.ServerHandshake.NewPayload(StructConvert.Struct2Bytes(serverHs)));
+				OpStructs.ClientHello hs = StructConvert.Bytes2Struct<OpStructs.ClientHello>(payload.GetData());
+				Log.Information("Client {client} ({id}) is trying to connect.", host, hs.Identifier);
+				encryptors[socket].ReceiveClientHello(hs);
+				socket.Send(OpCodes.ServerHello.NewPayload(StructConvert.Struct2Bytes(encryptors[socket].MakeServerHello())));
 			}
 			else
 			{
-				var decryptedPayload = encryptor.Decrypt(payload);
+				var decryptedPayload = encryptors[socket].Decrypt(payload);
 				Guid opcode = decryptedPayload.GetGuid();
 				var handlers = handlerRegistry.Where(handler => handler.AcceptedOps.Any(op => op == opcode)).ToList();
 				var data = decryptedPayload.GetData();

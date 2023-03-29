@@ -1,40 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="InputLog\**" />
-    <Compile Remove="Screencapture\**" />
-    <EmbeddedResource Remove="InputLog\**" />
-    <EmbeddedResource Remove="Screencapture\**" />
-    <None Remove="InputLog\**" />
-    <None Remove="Screencapture\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="InputLog\**" />
+		<Compile Remove="Screencapture\**" />
+		<EmbeddedResource Remove="InputLog\**" />
+		<EmbeddedResource Remove="Screencapture\**" />
+		<None Remove="InputLog\**" />
+		<None Remove="Screencapture\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="ActiveWindowInfo.cs" />
-    <Compile Remove="FeckdoorProgram.cs" />
-    <Compile Remove="Kernel32.cs" />
-    <Compile Remove="ModifierKey.cs" />
-    <Compile Remove="User32.cs" />
-    <Compile Remove="VirtualKey.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="ActiveWindowInfo.cs" />
+		<Compile Remove="FeckdoorProgram.cs" />
+		<Compile Remove="Kernel32.cs" />
+		<Compile Remove="ModifierKey.cs" />
+		<Compile Remove="User32.cs" />
+		<Compile Remove="VirtualKey.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\RAT\" />
-    <Folder Include="Features\Stealer\FileIO\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="Features\RAT\" />
+		<Folder Include="Features\Stealer\FileIO\" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Management" Version="7.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.0" />
+		<PackageReference Include="NSec.Cryptography" Version="22.4.0" />
+		<PackageReference Include="System.Management" Version="7.0.0" />
+	</ItemGroup>
 
-  <Import Project="..\Gloom.Shared\Gloom.Shared.projitems" Label="Shared" />
+	<Import Project="..\Gloom.Shared\Gloom.Shared.projitems" Label="Shared" />
 
 </Project>
