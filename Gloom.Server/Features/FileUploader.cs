@@ -1,17 +1,11 @@
-﻿using Gloom.Server.Features.InfoCollector.Wmi;
-using Microsoft.Win32;
-using Serilog;
-using System;
+﻿using Serilog;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace Gloom.Server.Features;
 internal class FileUploader : FeatureBase
 {
-	private IDictionary<Guid, OpStructs.UploadFileRequest> registry = new Dictionary<Guid, OpStructs.UploadFileRequest>();
+	private IDictionary<Guid, byte[]> hashRegistry = new Dictionary<Guid, byte[]>();
 
 	public FileUploader(IMessageSender sender) : base(sender, "up")
 	{
@@ -21,6 +15,22 @@ internal class FileUploader : FeatureBase
 
 	public override async Task HandleAsync(string from, Guid op, byte[] data)
 	{
+		var rsp = StructConvert.Bytes2Struct<OpStructs.UploadFileResponse>(data);
+		var ident = new Guid(rsp.Ident);
+		if (rsp.ErrorCode != 0)
+		{
+			Log.Error("Transfer failed with error code: {code}", rsp.ErrorCode);
+			return;
+		}
+
+		if (hashRegistry.ContainsKey(ident) && rsp.Sha512Hash.Length > 0)
+		{
+			var hash = hashRegistry[ident];
+			if (hash.SequenceEqual(rsp.Sha512Hash))
+				Log.Information("Hash matches: {hash}", hash);
+			else
+				Log.Error("Hash mismatches: local={myhash} vs remote={remotehash}", hash, rsp.Sha512Hash);
+		}
 	}
 
 	public override async Task<bool> HandleCommandAsync(string[] args)
@@ -35,23 +45,46 @@ internal class FileUploader : FeatureBase
 			return true;
 		}
 
+		const int bufferSize = 33554432; // 32MB
+
 		var ident = Guid.NewGuid();
 		var dst = args[2];
 
-		var buffer = ArrayPool<byte>.Shared.Rent(163840);
+		var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 		long index = 0;
 		try
 		{
-			using FileStream fs = File.Open(dst, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-			var taskList = new List<Task>();
+			var fi = new FileInfo(src);
+			var size = fi.Length;
+			await SendAsync(filter, OpCodes.UploadFileRequest, new OpStructs.UploadFileRequest
+			{
+				Ident = ident,
+				Destination = dst,
+				TotalChunkCount = ((size - (size % bufferSize)) / bufferSize) + (size % bufferSize > 0 ? 1 : 0),
+				BufferSize = bufferSize,
+				EoT = false
+			}, true);
+
+			using var ihash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
+			using FileStream fs = fi.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
-				taskList.Add(Task.Run(async () => await SendAsync(filter, OpCodes.UploadFileChunkRequest, new OpStructs.UploadFileChunkResponse { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, false)));
-			await Task.WhenAll(taskList);
+			{
+				ihash.AppendData(buffer, 0, bytesRead);
+				SendAsync(filter, OpCodes.UploadFileChunkRequest, new OpStructs.UploadFileChunkRequest { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, false);
+			}
+			hashRegistry[ident] = ihash.GetCurrentHash();
 		}
 		finally
 		{
 			ArrayPool<byte>.Shared.Return(buffer);
-			await SendAsync(filter, OpCodes.UploadFileRequest, new OpStructs.UploadFileRequest { Ident = ident, TotalChunkCount = index }, true);
+			await SendAsync(filter, OpCodes.UploadFileRequest, new OpStructs.UploadFileRequest
+			{
+				Ident = ident,
+				Destination = dst,
+				TotalChunkCount = index,
+				BufferSize = bufferSize,
+				EoT = true
+			}, true);
 		}
 
 		Log.Information("Sent environment variable list request to clients.");

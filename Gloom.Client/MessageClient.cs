@@ -37,7 +37,6 @@ namespace Gloom.Client
 					while (!cancel.IsCancellationRequested && socket.State == WebSocketState.Open)
 					{
 						await ProcessMessages(socket);
-						await Task.Delay(MessageLoopDelay, cancel.Token);
 					}
 				}
 				catch (Exception ex) when (ex is not TaskCanceledException)

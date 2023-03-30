@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AesGcmSimple.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CryptoLimits.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ErrorCodes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpCodes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpStructs.cs" />
     <Compile Include="..\Gloom.Shared\PayloadPackerExtension.cs" />

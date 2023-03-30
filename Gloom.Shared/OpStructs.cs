@@ -53,7 +53,6 @@ public static class OpStructs
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 	public struct ClipboardLoggerRequest
 	{
-		public Guid RequestType;
 	}
 
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -95,10 +94,12 @@ public static class OpStructs
 		public Guid Ident { get; set; }
 		public string Destination { get; set; }
 		public long TotalChunkCount { get; set; }
+		public int BufferSize { get; set; }
+		public bool EoT { get; set; } // End-of-Transaction
 	}
 
 	[Serializable]
-	public struct UploadFileChunkResponse
+	public struct UploadFileChunkRequest
 	{
 		public Guid Ident { get; set; }
 		public long ChunkIndex { get; set; }
@@ -108,8 +109,11 @@ public static class OpStructs
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
 	public struct UploadFileResponse
 	{
-		public Guid Ident { get; set; }
-		public long TotalChunkCount;
+		public int ErrorCode;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+		public byte[] Ident;
+		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 512 / 8)]
+		public byte[] Sha512Hash;
 	}
 
 	[Serializable]

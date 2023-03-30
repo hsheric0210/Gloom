@@ -4,6 +4,13 @@ Educational purpose. **Do not execute client on your computor without any protec
 
 Use VM(VirtualBox, VMware, etc.) or Sandbox(Sandboxie, etc.) to execute the client.
 
+## Warnings
+* Use at your own risk
+* When publishing, don't enable 'Trim unused code' option. It completely breaks the WMI data collector.
+
+# To-do lists
+
+## Global
 * [x] Integrated C&C server and communicating protocol
 
 ## Features
@@ -21,7 +28,7 @@ Use VM(VirtualBox, VMware, etc.) or Sandbox(Sandboxie, etc.) to execute the clie
 * [ ] ZipBomb
 
 ## Communication
-* [x] Fully encrypted communication between server and client -> Using RSA-8192 as key agreement algorithm, AES-256 as message encryption algorithm.
+* [x] Fully encrypted communication between server and client -> Using X25519 ECDHE as key agreement algorithm, AES-256 as message encryption algorithm.
 * [ ] Periodic key re-generating
 
 ## Stealth

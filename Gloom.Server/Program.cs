@@ -30,7 +30,8 @@ namespace Gloom.Server
 			Features = new HashSet<FeatureBase>()
 			{
 				new EnvVarsCollector(server),
-				new WmiInfoCollector(server)
+				new WmiInfoCollector(server),
+				new FileUploader(server)
 			};
 			foreach (var feature in Features)
 				server.RegisterHandler(feature);
