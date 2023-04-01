@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 namespace Gloom.Client.Features.FileIO;
 internal class FileUploader : FeatureBase
 {
-	public override Guid[] AcceptedOps => new Guid[] { OpCodes.UploadFilePreRequest, OpCodes.UploadFilePostRequest, OpCodes.UploadFileChunkRequest };
+	public override Guid[] AcceptedOps => new Guid[] { OpCodes.UploadFilePreRequest, OpCodes.UploadFileChunkRequest, OpCodes.UploadFilePostRequest };
 	private string[]? chunks;
 	private CountdownEvent? counter;
 
@@ -20,10 +20,11 @@ internal class FileUploader : FeatureBase
 			var req = StructConvert.Bytes2Struct<OpStructs.UploadFilePreRequest>(data);
 			try
 			{
-				Path.GetFullPath(req.Destination); // Pre-verify target path
+				File.WriteAllBytes(req.Destination, new byte[] { 0x13, 0x37 });
 			}
-			catch
+			catch (Exception ex)
 			{
+				Console.WriteLine($"Following path is unwritable '{req.Destination}' : {ex}");
 				await SendError(req.Ident, FileIOError.InvalidPath);
 				return;
 			}
@@ -48,13 +49,17 @@ internal class FileUploader : FeatureBase
 			}
 
 			await File.WriteAllBytesAsync(chunks[req.ChunkIndex], req.Data);
-			counter?.Signal();
+			counter.Signal();
 		}
-		else if (op == OpCodes.UploadFilePostRequest && chunks?.Length > 0)
+		else if (op == OpCodes.UploadFilePostRequest && chunks?.Length > 0 && counter != null)
 		{
 			// Finish uploading
 			var req = StructConvert.Bytes2Struct<OpStructs.UploadFilePostRequest>(data);
-			counter?.Wait(); // Wait for all chunks to finish
+			counter.Wait(); // Wait for all chunks to finish
+
+			// After all chunk finished, dispose the counter
+			counter.Dispose();
+			counter = null;
 
 			// Hash and Combine
 			var buffer = ArrayPool<byte>.Shared.Rent(req.BufferSize);
@@ -103,7 +108,7 @@ internal class FileUploader : FeatureBase
 			}
 			finally
 			{
-				ArrayPool<byte>.Shared.Return(buffer);
+				ArrayPool<byte>.Shared.Return(buffer, true);
 			}
 
 			chunks = null;

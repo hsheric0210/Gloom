@@ -5,5 +5,6 @@
 		public const int InvalidPath = 0x1;
 		public const int ChunkCombiningFailed = 0x2;
 		public const int WritingFailed = 0x3;
+		public const int ReadingFailed = 0x4;
 	}
 }

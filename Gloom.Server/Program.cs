@@ -31,7 +31,8 @@ namespace Gloom.Server
 			{
 				new EnvVarsCollector(server),
 				new WmiInfoCollector(server),
-				new FileUploader(server)
+				new FileUploader(server),
+				new FileDownloader(server)
 			};
 			foreach (var feature in Features)
 				server.RegisterHandler(feature);

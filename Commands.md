@@ -4,6 +4,9 @@
 |:---:|:---:|:---:|
 |download|=127.0.0.1:1234|"C:\\Users\\User\\Desktop\\Something Interesting.txt"|
 
+Command parser supports escaping spaces with `"`(quote) character.
+Example: `up * D:\\something.exe "C:\Program Files\something.exe"` is interpreted as 'up * D:\\something.exe <u>C:\Program Files\something.exe</u>' instead of 'up * D:\\something.exe <u>C:\Program</u> <u>Files\something.exe</u>'
+
 # Target selector
 |Name|Prefix (mnemonic)|Example|
 |:---|:---:|---:|
@@ -31,17 +34,11 @@ Prefixes not listed here are considered as 'Equals(`~`)'
 ### `wmi` - WMI information dump
 |`wmi`|Target selector|Info group|(Optional) save to specified file||
 |:---:|:---:|:---:|---:|
-|`wmi`|=127.0.0.1:1234|`ps`|Prints the list of processes running on client '127.0.0.1:1234'|
-|`wmi`|=127.0.0.1:1234|`svc`|Prints the list of services running on client '127.0.0.1:1234'|
-|`wmi`|=127.0.0.1:1234|`hw`|Prints the hardware informations of client '127.0.0.1:1234'|
-|`wmi`|=127.0.0.1:1234|`dsk`|Prints the disk and partition information of client '127.0.0.1:1234'|
+|`wmi`|=127.0.0.1:1234|`ps`|Saves the list of processes running on client '127.0.0.1:1234'|
+|`wmi`|=127.0.0.1:1234|`svc`|Saves the list of services running on client '127.0.0.1:1234'|
+|`wmi`|=127.0.0.1:1234|`hw`|Saves the hardware informations of client '127.0.0.1:1234'|
+|`wmi`|=127.0.0.1:1234|`dsk`|Saves the disk and partition information of client '127.0.0.1:1234'|
 
-
-
-## Info group
-|Group name|Description|
-|:---:|:---|
-|ps|The list of process currently running on the client computor|
-|svc|The list of services registered on the client computor|
-|hw|Hardware information of the client computor|
-|dsk|Disk/Drive information of the client computor|
+### `up` - Upload a file
+|`up`|Target selector|Local file path|Remote file path||
+|:---:|:---:|:---:|---:|

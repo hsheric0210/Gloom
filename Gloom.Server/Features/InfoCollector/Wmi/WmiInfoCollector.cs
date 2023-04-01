@@ -33,7 +33,7 @@ internal class WmiInfoCollector : FeatureBase
 		var count = 0;
 		foreach (var wi in registry.Where(r => string.Equals(r.Command, args[1])))
 			count += await SendAsync(filter, OpCodes.WmiInfoRequest, new WmiInfoRequest { WmiOp = wi.WmiOp }, true);
-		Log.Information("Sent environment variable list request to total {count} clients.", count);
+		Log.Information("Sent WMI dump of {type} request to total {count} clients.", args[1], count);
 		return true;
 	}
 }

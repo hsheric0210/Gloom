@@ -50,20 +50,21 @@ internal class FileUploader : FeatureBase
 		var dst = args[2];
 
 		var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-		long index = 0;
 		try
 		{
 			var info = new FileInfo(src);
 			var size = info.Length;
-			var expectedTotalChunks = ((size - (size % bufferSize)) / bufferSize) + (size % bufferSize > 0 ? 1 : 0);
+			var expectedTotalChunks = (size - size % bufferSize) / bufferSize + (size % bufferSize > 0 ? 1 : 0);
 			await SendAsync(filter, OpCodes.UploadFilePreRequest, new OpStructs.UploadFilePreRequest
 			{
 				Ident = ident,
+				Destination = dst,
 				TotalChunkCount = expectedTotalChunks
 			}, true);
 
 			using var ihash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
 			using var fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+			long index = 0;
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 			{
 				ihash.AppendData(buffer, 0, bytesRead);
