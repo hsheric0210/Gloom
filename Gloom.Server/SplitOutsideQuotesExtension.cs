@@ -69,7 +69,7 @@ public static class SplitOutsideQuotesExtension
 					escapeFlag = true;
 					break;
 				case '"':
-					currentItem.Append(currentChar);
+					//currentItem.Append(currentChar);
 					quotesOpen = !quotesOpen;
 					break;
 			}

@@ -32,7 +32,6 @@ namespace Gloom.Server
 
 		public void Configure(IWebSocketConnection socket)
 		{
-			//FleckLog.Level = LogLevel.Debug;
 			socket.OnOpen = () => OnOpen(socket);
 			socket.OnBinary = data => OnMessage(socket, data);
 			socket.OnClose = () => OnClose(socket);

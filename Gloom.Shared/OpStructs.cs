@@ -28,14 +28,14 @@ public static class OpStructs
 	#endregion
 
 	#region KeyLogger
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[Serializable]
 	public struct KeyLoggerSettingRequest
 	{
 		public int Mode;
 		public int SaveInterval;
 	}
 
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[Serializable]
 	public struct KeyLogRequest
 	{
 		public int LogCount;
@@ -50,12 +50,12 @@ public static class OpStructs
 	#endregion
 
 	#region ClipboardLogger
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[Serializable]
 	public struct ClipboardLoggerRequest
 	{
 	}
 
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[Serializable]
 	public struct ClipboardLoggerStateResponse
 	{
 		public bool Enabled;
@@ -75,7 +75,7 @@ public static class OpStructs
 	#endregion
 
 	#region InfoCollector
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[Serializable]
 	public struct EnvVarsRequest
 	{
 	}
@@ -89,13 +89,19 @@ public static class OpStructs
 
 	#region FileIO
 	[Serializable]
-	public struct UploadFileRequest
+	public struct UploadFilePreRequest
 	{
 		public Guid Ident { get; set; }
 		public string Destination { get; set; }
 		public long TotalChunkCount { get; set; }
+	}
+
+	[Serializable]
+	public struct UploadFilePostRequest
+	{
+		public Guid Ident { get; set; }
+		public string Destination { get; set; }
 		public int BufferSize { get; set; }
-		public bool EoT { get; set; } // End-of-Transaction
 	}
 
 	[Serializable]
@@ -106,13 +112,11 @@ public static class OpStructs
 		public byte[] Data { get; set; }
 	}
 
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+	[Serializable]
 	public struct UploadFileResponse
 	{
+		public Guid Ident;
 		public int ErrorCode;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-		public byte[] Ident;
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 512 / 8)]
 		public byte[] Sha512Hash;
 	}
 
@@ -121,6 +125,7 @@ public static class OpStructs
 	{
 		public Guid Ident { get; set; }
 		public string Source { get; set; }
+		public int BufferSize { get; set; }
 	}
 
 	[Serializable]
@@ -131,11 +136,21 @@ public static class OpStructs
 		public byte[] Data { get; set; }
 	}
 
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-	public struct DownloadFileResponse
+	[Serializable]
+	public struct DownloadFilePreResponse
 	{
-		public Guid Ident { get; set; }
+		public Guid Ident;
+		public int ErrorCode;
 		public long TotalChunkCount;
+	}
+
+	[Serializable]
+	public struct DownloadFilePostResponse
+	{
+		public Guid Ident;
+		public int ErrorCode;
+		public long TotalChunkCount;
+		public byte[] Sha512Hash;
 	}
 	#endregion
 

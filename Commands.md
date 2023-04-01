@@ -27,12 +27,15 @@ Prefixes not listed here are considered as 'Equals(`~`)'
 |`env`|Target selector|(Optional) save to specified file||
 |:---:|:---:|:---:|---:|
 |`env`|=127.0.0.1:1234||Prints the list of environment variables of client '127.0.0.1:1234'|
-|`pslist`|=127.0.0.1:1234|C:\\Logs\\Env.log|Environment variable list of '127.0.0.1:1234' saved to `C:\Logs\Env.log`|
-
 
 ### `wmi` - WMI information dump
 |`wmi`|Target selector|Info group|(Optional) save to specified file||
 |:---:|:---:|:---:|---:|
+|`wmi`|=127.0.0.1:1234|`ps`|Prints the list of processes running on client '127.0.0.1:1234'|
+|`wmi`|=127.0.0.1:1234|`svc`|Prints the list of services running on client '127.0.0.1:1234'|
+|`wmi`|=127.0.0.1:1234|`hw`|Prints the hardware informations of client '127.0.0.1:1234'|
+|`wmi`|=127.0.0.1:1234|`dsk`|Prints the disk and partition information of client '127.0.0.1:1234'|
+
 
 
 ## Info group

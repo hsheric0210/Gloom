@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Drawing;
 
 namespace Gloom.Client.Features.FileIO;
 internal class FileDownloader : FeatureBase
@@ -11,15 +12,21 @@ internal class FileDownloader : FeatureBase
 
 	public override async Task HandleAsync(Guid op, byte[] data)
 	{
-		var req = StructConvert.Bytes2Struct<OpStructs.DownloadFileRequest>(data);
+		OpStructs.DownloadFileRequest req = StructConvert.Bytes2Struct<OpStructs.DownloadFileRequest>(data);
 		var info = new FileInfo(req.Source);
 		if (!info.Exists)
 		{
-			await SendAsync(OpCodes.UploadFileResponse, new OpStructs.DownloadFileResponse { Ident = req.Ident, TotalChunkCount = -1 }, true);
+			await SendAsync(OpCodes.UploadFileResponse, new OpStructs.DownloadFilePreResponse { Ident = req.Ident, TotalChunkCount = -1 }, true);
 			return;
 		}
 
-		var buffer = ArrayPool<byte>.Shared.Rent(163840);
+		Guid ident = req.Ident;
+		var bufferSize = req.BufferSize;
+		var size = info.Length;
+		var expectedTotalChunks = ((size - (size % bufferSize)) / bufferSize) + (size % bufferSize > 0 ? 1 : 0);
+		await SendAsync(OpCodes.DownloadFilePreResponse, new OpStructs.DownloadFilePreResponse { Ident = ident, ErrorCode = 0, TotalChunkCount = expectedTotalChunks }, true);
+
+		var buffer = ArrayPool<byte>.Shared.Rent(req.BufferSize);
 		long index = 0;
 		try
 		{
@@ -32,7 +39,7 @@ internal class FileDownloader : FeatureBase
 		finally
 		{
 			ArrayPool<byte>.Shared.Return(buffer);
-			await SendAsync(OpCodes.DownloadFileResponse, new OpStructs.DownloadFileResponse { Ident = req.Ident, TotalChunkCount = index }, true);
+			await SendAsync(OpCodes.DownloadFilePostResponse, new OpStructs.DownloadFilePostResponse { Ident = req.Ident, TotalChunkCount = index }, true);
 		}
 	}
 }

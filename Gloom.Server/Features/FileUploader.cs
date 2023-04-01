@@ -16,16 +16,15 @@ internal class FileUploader : FeatureBase
 	public override async Task HandleAsync(string from, Guid op, byte[] data)
 	{
 		var rsp = StructConvert.Bytes2Struct<OpStructs.UploadFileResponse>(data);
-		var ident = new Guid(rsp.Ident);
 		if (rsp.ErrorCode != 0)
 		{
 			Log.Error("Transfer failed with error code: {code}", rsp.ErrorCode);
 			return;
 		}
 
-		if (hashRegistry.ContainsKey(ident) && rsp.Sha512Hash.Length > 0)
+		if (hashRegistry.ContainsKey(rsp.Ident) && rsp.Sha512Hash.Length > 0)
 		{
-			var hash = hashRegistry[ident];
+			var hash = hashRegistry[rsp.Ident];
 			if (hash.SequenceEqual(rsp.Sha512Hash))
 				Log.Information("Hash matches: {hash}", hash);
 			else
@@ -45,7 +44,7 @@ internal class FileUploader : FeatureBase
 			return true;
 		}
 
-		const int bufferSize = 33554432; // 32MB
+		const int bufferSize = 8388608; // 8MB
 
 		var ident = Guid.NewGuid();
 		var dst = args[2];
@@ -54,40 +53,44 @@ internal class FileUploader : FeatureBase
 		long index = 0;
 		try
 		{
-			var fi = new FileInfo(src);
-			var size = fi.Length;
-			await SendAsync(filter, OpCodes.UploadFileRequest, new OpStructs.UploadFileRequest
+			var info = new FileInfo(src);
+			var size = info.Length;
+			var expectedTotalChunks = ((size - (size % bufferSize)) / bufferSize) + (size % bufferSize > 0 ? 1 : 0);
+			await SendAsync(filter, OpCodes.UploadFilePreRequest, new OpStructs.UploadFilePreRequest
 			{
 				Ident = ident,
-				Destination = dst,
-				TotalChunkCount = ((size - (size % bufferSize)) / bufferSize) + (size % bufferSize > 0 ? 1 : 0),
-				BufferSize = bufferSize,
-				EoT = false
+				TotalChunkCount = expectedTotalChunks
 			}, true);
 
 			using var ihash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
-			using FileStream fs = fi.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+			using FileStream fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 			{
 				ihash.AppendData(buffer, 0, bytesRead);
-				SendAsync(filter, OpCodes.UploadFileChunkRequest, new OpStructs.UploadFileChunkRequest { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, false);
+				await SendAsync(filter, OpCodes.UploadFileChunkRequest, new OpStructs.UploadFileChunkRequest { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, false);
+
+				// Print progress
+				if (!Console.IsOutputRedirected)
+				{
+					Console.CursorLeft = 0;
+					Console.Write($"Sending chunks: {(index + 1) / expectedTotalChunks}% [{index + 1} / {expectedTotalChunks}]");
+				}
 			}
+			Console.WriteLine(" ... All chunks have been sent.");
 			hashRegistry[ident] = ihash.GetCurrentHash();
 		}
 		finally
 		{
 			ArrayPool<byte>.Shared.Return(buffer);
-			await SendAsync(filter, OpCodes.UploadFileRequest, new OpStructs.UploadFileRequest
+			await SendAsync(filter, OpCodes.UploadFilePostRequest, new OpStructs.UploadFilePostRequest
 			{
 				Ident = ident,
 				Destination = dst,
-				TotalChunkCount = index,
-				BufferSize = bufferSize,
-				EoT = true
+				BufferSize = bufferSize
 			}, true);
 		}
 
-		Log.Information("Sent environment variable list request to clients.");
+		Log.Information("Sent the specified file to the clients clients.");
 		return true;
 	}
 }
