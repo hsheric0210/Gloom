@@ -19,7 +19,7 @@ namespace Gloom.Server
 		public void ReceiveClientHello(OpStructs.ClientHello clientHello)
 		{
 			var clientKey = PublicKey.Import(KeyAgreementAlgorithm.X25519, clientHello.DHParameter, KeyBlobFormat.PkixPublicKey);
-			SharedSecret? agreedKey = KeyAgreementAlgorithm.X25519.Agree(serverKey, clientKey, new SharedSecretCreationParameters { ExportPolicy = KeyExportPolicies.AllowPlaintextExport });
+			var agreedKey = KeyAgreementAlgorithm.X25519.Agree(serverKey, clientKey, new SharedSecretCreationParameters { ExportPolicy = KeyExportPolicies.AllowPlaintextExport });
 			if (agreedKey == null)
 				throw new CryptographicException("Key agreement failed");
 

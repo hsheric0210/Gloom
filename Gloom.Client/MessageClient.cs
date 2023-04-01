@@ -75,7 +75,7 @@ namespace Gloom.Client
 							//https://stackoverflow.com/questions/28512360/what-is-the-proper-way-to-use-websocketclient-receiveasync-and-buffer
 							while (true)
 							{
-								WebSocketReceiveResult result = await socket.ReceiveAsync(buffer, cancel.Token);
+								var result = await socket.ReceiveAsync(buffer, cancel.Token);
 								encryptedStream.Write(buffer, 0, result.Count);
 								if (result.EndOfMessage)
 									break;
@@ -89,7 +89,7 @@ namespace Gloom.Client
 						payload = encryptor.Decrypt(encryptedStream.ToArray());
 					}
 
-					Guid opcode = payload.GetGuid();
+					var opcode = payload.GetGuid();
 					var data = payload.GetData();
 					try
 					{

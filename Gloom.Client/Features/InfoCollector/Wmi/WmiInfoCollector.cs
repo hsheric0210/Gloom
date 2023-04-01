@@ -16,8 +16,8 @@ public class WmiInfoCollector : FeatureBase
 
 	public override async Task HandleAsync(Guid op, byte[] data)
 	{
-		WmiInfoRequest req = StructConvert.Bytes2Struct<WmiInfoRequest>(data);
-		foreach (WmiInfo wi in registry.Where(r => r.WmiOp == req.WmiOp))
+		var req = StructConvert.Bytes2Struct<WmiInfoRequest>(data);
+		foreach (var wi in registry.Where(r => r.WmiOp == req.WmiOp))
 			await SendAsync(OpCodes.WmiInfoResponse, new WmiInfoResponse { WmiOp = wi.WmiOp, Data = StructConvert.Struct2Bytes(wi.Collect()) }, true);
 	}
 }

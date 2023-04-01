@@ -17,7 +17,7 @@ internal class FileUploader : FeatureBase
 		if (op == OpCodes.UploadFilePreRequest)
 		{
 			// Initiate uploading
-			OpStructs.UploadFilePreRequest req = StructConvert.Bytes2Struct<OpStructs.UploadFilePreRequest>(data);
+			var req = StructConvert.Bytes2Struct<OpStructs.UploadFilePreRequest>(data);
 			try
 			{
 				Path.GetFullPath(req.Destination); // Pre-verify target path
@@ -38,7 +38,7 @@ internal class FileUploader : FeatureBase
 		else if (op == OpCodes.UploadFileChunkRequest && chunks != null && counter != null)
 		{
 			// Receive file chunks
-			OpStructs.UploadFileChunkRequest req = StructConvert.Bytes2Struct<OpStructs.UploadFileChunkRequest>(data);
+			var req = StructConvert.Bytes2Struct<OpStructs.UploadFileChunkRequest>(data);
 			if (chunks.Length <= req.ChunkIndex)
 			{
 #if DEBUG
@@ -53,7 +53,7 @@ internal class FileUploader : FeatureBase
 		else if (op == OpCodes.UploadFilePostRequest && chunks?.Length > 0)
 		{
 			// Finish uploading
-			OpStructs.UploadFilePostRequest req = StructConvert.Bytes2Struct<OpStructs.UploadFilePostRequest>(data);
+			var req = StructConvert.Bytes2Struct<OpStructs.UploadFilePostRequest>(data);
 			counter?.Wait(); // Wait for all chunks to finish
 
 			// Hash and Combine
@@ -61,13 +61,13 @@ internal class FileUploader : FeatureBase
 			try
 			{
 				using var ihash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
-				using (FileStream stream = File.Open(req.Destination, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
+				using (var stream = File.Open(req.Destination, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read))
 				{
 					for (var i = 0; i < chunks.Length; i++)
 					{
 						try
 						{
-							using FileStream chunkStream = File.Open(chunks[i], FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+							using var chunkStream = File.Open(chunks[i], FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 							for (int bytesRead; (bytesRead = chunkStream.Read(buffer, 0, buffer.Length)) != 0;)
 							{
 								stream.Write(buffer, 0, bytesRead);

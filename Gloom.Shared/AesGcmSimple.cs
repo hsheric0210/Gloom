@@ -23,9 +23,9 @@ namespace Gloom
 			var metaTagLength = AesGcm.NonceByteSizes.MaxSize + AesGcm.TagByteSizes.MaxSize;
 			var buffer = new byte[ciphertext.Length - metaTagLength];
 			// <NONCE><TAG><CIPHERTEXT>
-			Span<byte> nonce = ciphertext.AsSpan(0, AesGcm.NonceByteSizes.MaxSize);
-			Span<byte> cipherTexxt = ciphertext.AsSpan(metaTagLength, ciphertext.Length - metaTagLength);
-			Span<byte> tag = ciphertext.AsSpan(AesGcm.NonceByteSizes.MaxSize, AesGcm.TagByteSizes.MaxSize);
+			var nonce = ciphertext.AsSpan(0, AesGcm.NonceByteSizes.MaxSize);
+			var cipherTexxt = ciphertext.AsSpan(metaTagLength, ciphertext.Length - metaTagLength);
+			var tag = ciphertext.AsSpan(AesGcm.NonceByteSizes.MaxSize, AesGcm.TagByteSizes.MaxSize);
 			aes!.Decrypt(nonce, cipherTexxt, tag, buffer);
 			return buffer;
 		}

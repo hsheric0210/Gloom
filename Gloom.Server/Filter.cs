@@ -36,7 +36,7 @@ public class Filter
 		if (expression.StartsWith('*'))
 			return new Filter(FilterType.All, "");
 
-		FilterType _type = FilterType.Equals;
+		var _type = FilterType.Equals;
 		var offset = 0; // To detach type prefix
 		if (expression.Length > 1)
 		{

@@ -56,7 +56,7 @@ namespace Gloom.Server
 					var param = split.Length > 1 ? split[1..] : Array.Empty<string>();
 					var features = Features.Where(f => string.Equals(f.CommandPrefix, split[0], StringComparison.OrdinalIgnoreCase)).ToList();
 					Log.Information("There're {count} features matching command prefix {cmd}.", features.Count, split[0]);
-					foreach (FeatureBase feature in features)
+					foreach (var feature in features)
 					{
 						try
 						{

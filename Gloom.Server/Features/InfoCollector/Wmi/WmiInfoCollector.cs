@@ -20,8 +20,8 @@ internal class WmiInfoCollector : FeatureBase
 
 	public override async Task HandleAsync(string from, Guid op, byte[] data)
 	{
-		WmiInfoResponse rsp = StructConvert.Bytes2Struct<WmiInfoResponse>(data);
-		foreach (WmiInfo wi in registry.Where(r => r.WmiOp == rsp.WmiOp))
+		var rsp = StructConvert.Bytes2Struct<WmiInfoResponse>(data);
+		foreach (var wi in registry.Where(r => r.WmiOp == rsp.WmiOp))
 			await wi.Handle(from, rsp.Data);
 	}
 
@@ -31,7 +31,7 @@ internal class WmiInfoCollector : FeatureBase
 			return false;
 		var filter = Filter.Parse(args[0]);
 		var count = 0;
-		foreach (WmiInfo wi in registry.Where(r => string.Equals(r.Command, args[1])))
+		foreach (var wi in registry.Where(r => string.Equals(r.Command, args[1])))
 			count += await SendAsync(filter, OpCodes.WmiInfoRequest, new WmiInfoRequest { WmiOp = wi.WmiOp }, true);
 		Log.Information("Sent environment variable list request to total {count} clients.", count);
 		return true;

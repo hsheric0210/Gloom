@@ -16,7 +16,7 @@ namespace Gloom.Server
 			var targets = sockets.Where(sock => filter.IsMatch(sock.ConnectionInfo.Host)).ToImmutableList();
 			var tasks = new List<Task>(targets.Count);
 
-			foreach (IWebSocketConnection socket in targets)
+			foreach (var socket in targets)
 				tasks.Add(socket.Send(encryptors[socket].Encrypt(opCode.NewPayload(StructConvert.Struct2Bytes(data)))));
 
 			await Task.WhenAll(tasks);
@@ -55,10 +55,10 @@ namespace Gloom.Server
 		public void OnMessage(IWebSocketConnection socket, byte[] payload)
 		{
 			var host = socket.ConnectionInfo.Host;
-			Guid guid = payload.GetGuid();
+			var guid = payload.GetGuid();
 			if (guid == OpCodes.ClientHello)
 			{
-				OpStructs.ClientHello hs = StructConvert.Bytes2Struct<OpStructs.ClientHello>(payload.GetData());
+				var hs = StructConvert.Bytes2Struct<OpStructs.ClientHello>(payload.GetData());
 				Log.Information("Client {client} ({id}) is trying to connect.", host, hs.Identifier);
 				encryptors[socket].ReceiveClientHello(hs);
 				socket.Send(OpCodes.ServerHello.NewPayload(StructConvert.Struct2Bytes(encryptors[socket].MakeServerHello())));
@@ -66,7 +66,7 @@ namespace Gloom.Server
 			else
 			{
 				var decryptedPayload = encryptors[socket].Decrypt(payload);
-				Guid opcode = decryptedPayload.GetGuid();
+				var opcode = decryptedPayload.GetGuid();
 				var handlers = handlerRegistry.Where(handler => handler.AcceptedOps.Any(op => op == opcode)).ToList();
 				var data = decryptedPayload.GetData();
 
@@ -91,7 +91,7 @@ namespace Gloom.Server
 
 		public void Dispose()
 		{
-			foreach (IWebSocketConnection socket in sockets)
+			foreach (var socket in sockets)
 				socket.Close();
 			server.Dispose();
 		}

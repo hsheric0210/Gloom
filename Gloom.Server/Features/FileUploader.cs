@@ -63,7 +63,7 @@ internal class FileUploader : FeatureBase
 			}, true);
 
 			using var ihash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
-			using FileStream fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+			using var fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 			{
 				ihash.AppendData(buffer, 0, bytesRead);

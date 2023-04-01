@@ -23,7 +23,7 @@ public static class SimpleParallel
 		if (!values.TryGetNonEnumeratedCount(out var cnt))
 			cnt = 128;
 		var taskList = new List<Task>(cnt);
-		foreach (T item in values)
+		foreach (var item in values)
 			taskList.Add(Task.Run(() => process(item)));
 		return Task.WhenAll(taskList);
 	}
@@ -36,7 +36,7 @@ public static class SimpleParallel
 		if (!values.TryGetNonEnumeratedCount(out var cnt))
 			cnt = 128;
 		var taskList = new List<Task>(cnt);
-		foreach (T item in values)
+		foreach (var item in values)
 			taskList.Add(Task.Run(async () => await asyncProcess(item)));
 		return Task.WhenAll(taskList);
 	}

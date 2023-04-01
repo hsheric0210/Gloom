@@ -19,10 +19,10 @@ internal abstract class WmiInfo
 		var list = new List<T>();
 		try
 		{
-			foreach (ManagementBaseObject obj in cls.GetInstances())
+			foreach (var obj in cls.GetInstances())
 			{
 				object instance = new T();
-				foreach (PropertyInfo prop in instance.GetType().GetProperties())
+				foreach (var prop in instance.GetType().GetProperties())
 				{
 					try
 					{
