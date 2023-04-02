@@ -46,6 +46,8 @@ namespace Gloom.Server
 			while (true)
 			{
 				var cmd = Console.ReadLine();
+				if (cmd == null)
+					continue;
 				var split = cmd.Trim().SplitOutsideQuotes(' ');
 				if (split.Length == 0)
 					continue;
