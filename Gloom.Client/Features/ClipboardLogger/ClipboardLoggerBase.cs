@@ -1,11 +1,13 @@
-﻿namespace Gloom.Client.Features.ClipboardLogger;
-internal class ClipboardLoggerBase : FeatureBase
+﻿namespace Gloom.Client.Features.ClipboardLogger
 {
-	public override Guid[] AcceptedOps => new Guid[] { OpCodes.ClipboardLoggerSettingRequest, OpCodes.ClipboardLogRequest };
-
-	public ClipboardLoggerBase(IMessageSender sender) : base(sender)
+	internal class ClipboardLoggerBase : FeatureBase
 	{
-	}
+		public override Guid[] AcceptedOps => new Guid[] { OpCodes.ClipboardLoggerSettingRequest, OpCodes.ClipboardLogRequest };
 
-	public override Task HandleAsync(Guid op, byte[] data) => throw new NotImplementedException();
+		public ClipboardLoggerBase(IMessageSender sender) : base(sender)
+		{
+		}
+
+		public override Task HandleAsync(Guid op, byte[] data) => throw new NotImplementedException();
+	}
 }

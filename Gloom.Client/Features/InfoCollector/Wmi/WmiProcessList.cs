@@ -1,18 +1,20 @@
 ﻿using Gloom.WmiOps;
 
-namespace Gloom.Client.Features.InfoCollector.Wmi;
-internal class WmiProcessList : WmiInfo
+namespace Gloom.Client.Features.InfoCollector.Wmi
 {
-	public WmiProcessList() : base(WmiOpCodes.ProcessList)
+	internal class WmiProcessList : WmiInfo
 	{
-	}
-
-	public override object Collect()
-	{
-		var ret = new ProcessListResponse
+		public WmiProcessList() : base(WmiOpCodes.ProcessList)
 		{
-			List = Crawl<Win32Process>("Win32_Process")
-		};
-		return ret;
+		}
+
+		public override object Collect()
+		{
+			var ret = new ProcessListResponse
+			{
+				List = Crawl<Win32Process>("Win32_Process")
+			};
+			return ret;
+		}
 	}
 }

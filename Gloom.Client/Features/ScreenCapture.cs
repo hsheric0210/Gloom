@@ -1,4 +1,6 @@
-﻿namespace Gloom.Client.Features;
-internal class ScreenCapture
+﻿namespace Gloom.Client.Features
 {
+	internal class ScreenCapture
+	{
+	}
 }

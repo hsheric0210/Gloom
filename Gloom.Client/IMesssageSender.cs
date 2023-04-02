@@ -1,5 +1,7 @@
-﻿namespace Gloom.Client;
-public interface IMessageSender
+﻿namespace Gloom.Client
 {
-	public Task SendAsync(Guid opCode, object data, bool eom);
+	public interface IMessageSender
+	{
+		public Task SendAsync(Guid opCode, object data, bool eom);
+	}
 }

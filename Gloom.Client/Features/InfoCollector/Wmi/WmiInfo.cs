@@ -1,52 +1,54 @@
 ﻿using System.Management;
 
-namespace Gloom.Client.Features.InfoCollector.Wmi;
-internal abstract class WmiInfo
+namespace Gloom.Client.Features.InfoCollector.Wmi
 {
-	internal Guid WmiOp { get; }
-	protected WmiInfo(Guid wmiOp) => WmiOp = wmiOp;
+	internal abstract class WmiInfo
+	{
+		internal Guid WmiOp { get; }
+		protected WmiInfo(Guid wmiOp) => WmiOp = wmiOp;
 
-	public abstract object Collect();
+		public abstract object Collect();
 
 #pragma warning disable CA1416 // Validate platform compatibility
-	protected static T[] Crawl<T>(string wmiClass) where T : struct
-	{
-		if (Environment.OSVersion.Platform != PlatformID.Win32NT) // WMI is not supported on other OS's
-			return Array.Empty<T>();
+		protected static T[] Crawl<T>(string wmiClass) where T : struct
+		{
+			if (Environment.OSVersion.Platform != PlatformID.Win32NT) // WMI is not supported on other OS's
+				return Array.Empty<T>();
 
-		var cls = new ManagementClass(wmiClass);
-		var list = new List<T>();
-		try
-		{
-			foreach (var obj in cls.GetInstances())
+			var cls = new ManagementClass(wmiClass);
+			var list = new List<T>();
+			try
 			{
-				object instance = new T();
-				foreach (var prop in instance.GetType().GetProperties())
+				foreach (var obj in cls.GetInstances())
 				{
-					try
+					object instance = new T();
+					foreach (var prop in instance.GetType().GetProperties())
 					{
-						var data = obj[prop.Name];
-						if (prop.PropertyType == typeof(DateTime) && data is string sdata)
-							data = ManagementDateTimeConverter.ToDateTime(sdata);
-						prop.SetValue(instance, data);
-					}
-					catch (Exception ex)
-					{
+						try
+						{
+							var data = obj[prop.Name];
+							if (prop.PropertyType == typeof(DateTime) && data is string sdata)
+								data = ManagementDateTimeConverter.ToDateTime(sdata);
+							prop.SetValue(instance, data);
+						}
+						catch (Exception ex)
+						{
 #if DEBUG
-						Console.WriteLine($"Exception during WMI class '{wmiClass}' property '{prop.Name}' -> {ex}");
+							Console.WriteLine($"Exception during WMI class '{wmiClass}' property '{prop.Name}' -> {ex}");
 #endif
+						}
 					}
+					list.Add((T)instance);
 				}
-				list.Add((T)instance);
 			}
-		}
-		catch (Exception ex)
-		{
+			catch (Exception ex)
+			{
 #if DEBUG
-			Console.WriteLine($"Exception during cim instance '{wmiClass}' init: {ex}");
+				Console.WriteLine($"Exception during cim instance '{wmiClass}' init: {ex}");
 #endif
+			}
+			return list.ToArray();
 		}
-		return list.ToArray();
-	}
 #pragma warning restore CA1416 // Validate platform compatibility
+	}
 }

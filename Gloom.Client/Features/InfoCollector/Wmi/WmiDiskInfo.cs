@@ -1,19 +1,21 @@
 ﻿using Gloom.WmiOps;
 
-namespace Gloom.Client.Features.InfoCollector.Wmi;
-internal class WmiDiskInfo : WmiInfo
+namespace Gloom.Client.Features.InfoCollector.Wmi
 {
-	public WmiDiskInfo() : base(WmiOpCodes.DiskInfo)
+	internal class WmiDiskInfo : WmiInfo
 	{
-	}
-
-	public override object Collect()
-	{
-		return new DiskInfoResponse
+		public WmiDiskInfo() : base(WmiOpCodes.DiskInfo)
 		{
-			DiskDrives = Crawl<Win32DiskDrive>("Win32_DiskDrive"),
-			DiskPartitions = Crawl<Win32DiskPartition>("Win32_DiskPartition"),
-			LogicalDisks = Crawl<Win32LogicalDisk>("Win32_LogicalDisk")
-		};
+		}
+
+		public override object Collect()
+		{
+			return new DiskInfoResponse
+			{
+				DiskDrives = Crawl<Win32DiskDrive>("Win32_DiskDrive"),
+				DiskPartitions = Crawl<Win32DiskPartition>("Win32_DiskPartition"),
+				LogicalDisks = Crawl<Win32LogicalDisk>("Win32_LogicalDisk")
+			};
+		}
 	}
 }

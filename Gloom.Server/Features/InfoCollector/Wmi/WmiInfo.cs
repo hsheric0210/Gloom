@@ -1,14 +1,16 @@
-﻿namespace Gloom.Server.Features.InfoCollector.Wmi;
-internal abstract class WmiInfo
+﻿namespace Gloom.Server.Features.InfoCollector.Wmi
 {
-	internal string Command { get; }
-	internal Guid WmiOp { get; }
-
-	protected WmiInfo(string command, Guid wmiOp)
+	internal abstract class WmiInfo
 	{
-		Command = command;
-		WmiOp = wmiOp;
-	}
+		internal string Command { get; }
+		internal Guid WmiOp { get; }
 
-	public abstract Task Handle(Client client, byte[] data);
+		protected WmiInfo(string command, Guid wmiOp)
+		{
+			Command = command;
+			WmiOp = wmiOp;
+		}
+
+		public abstract Task Handle(Client client, byte[] data);
+	}
 }

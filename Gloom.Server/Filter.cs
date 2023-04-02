@@ -1,77 +1,79 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Gloom.Server;
-public class Filter
+namespace Gloom.Server
 {
-	public FilterType Type { get; set; }
-	private readonly string expression;
-	private Regex? regex;
-
-	public Filter(FilterType type, string expression)
+	public class Filter
 	{
-		Type = type;
-		this.expression = expression;
-	}
+		public FilterType Type { get; set; }
+		private readonly string expression;
+		private Regex? regex;
 
-	public bool IsMatch(string str)
-	{
-		switch (Type)
+		public Filter(FilterType type, string expression)
 		{
-			case FilterType.Equals:
-				return string.Equals(str, expression, StringComparison.OrdinalIgnoreCase);
-			case FilterType.Contains:
-				return str.Contains(expression, StringComparison.OrdinalIgnoreCase);
-			case FilterType.StartsWith:
-				return str.StartsWith(expression, StringComparison.OrdinalIgnoreCase);
-			case FilterType.EndsWith:
-				return str.EndsWith(expression, StringComparison.OrdinalIgnoreCase);
-			case FilterType.Regex:
-				return (regex ??= new Regex(expression, RegexOptions.Compiled)).IsMatch(str); // Cache compiled regex
+			Type = type;
+			this.expression = expression;
 		}
-		return true;
-	}
 
-	public static Filter Parse(string expression)
-	{
-		if (expression.StartsWith('*'))
-			return new Filter(FilterType.All, "");
-
-		var _type = FilterType.Equals;
-		var offset = 0; // To detach type prefix
-		if (expression.Length > 1)
+		public bool IsMatch(string str)
 		{
-			offset = 1;
-			switch (expression[0])
+			switch (Type)
 			{
-				case '=':
-					break;
-				case '~':
-					_type = FilterType.Contains;
-					break;
-				case '[':
-					_type = FilterType.StartsWith;
-					break;
-				case ']':
-					_type = FilterType.EndsWith;
-					break;
-				case '/':
-					_type = FilterType.Regex;
-					break;
-				default: // Unrecognized prefix
-					offset = 0;
-					break;
+				case FilterType.Equals:
+					return string.Equals(str, expression, StringComparison.OrdinalIgnoreCase);
+				case FilterType.Contains:
+					return str.Contains(expression, StringComparison.OrdinalIgnoreCase);
+				case FilterType.StartsWith:
+					return str.StartsWith(expression, StringComparison.OrdinalIgnoreCase);
+				case FilterType.EndsWith:
+					return str.EndsWith(expression, StringComparison.OrdinalIgnoreCase);
+				case FilterType.Regex:
+					return (regex ??= new Regex(expression, RegexOptions.Compiled)).IsMatch(str); // Cache compiled regex
 			}
+			return true;
 		}
-		return new Filter(_type, expression[offset..]);
-	}
-}
 
-public enum FilterType
-{
-	All,
-	Equals,
-	Contains,
-	StartsWith,
-	EndsWith,
-	Regex
+		public static Filter Parse(string expression)
+		{
+			if (expression.StartsWith('*'))
+				return new Filter(FilterType.All, "");
+
+			var _type = FilterType.Equals;
+			var offset = 0; // To detach type prefix
+			if (expression.Length > 1)
+			{
+				offset = 1;
+				switch (expression[0])
+				{
+					case '=':
+						break;
+					case '~':
+						_type = FilterType.Contains;
+						break;
+					case '[':
+						_type = FilterType.StartsWith;
+						break;
+					case ']':
+						_type = FilterType.EndsWith;
+						break;
+					case '/':
+						_type = FilterType.Regex;
+						break;
+					default: // Unrecognized prefix
+						offset = 0;
+						break;
+				}
+			}
+			return new Filter(_type, expression[offset..]);
+		}
+	}
+
+	public enum FilterType
+	{
+		All,
+		Equals,
+		Contains,
+		StartsWith,
+		EndsWith,
+		Regex
+	}
 }

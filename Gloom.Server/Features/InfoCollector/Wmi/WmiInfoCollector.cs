@@ -1,11 +1,12 @@
 ﻿using Gloom.WmiOps;
 using Serilog;
 
-namespace Gloom.Server.Features.InfoCollector.Wmi;
-internal class WmiInfoCollector : FeatureBase
+namespace Gloom.Server.Features.InfoCollector.Wmi
 {
-	public override Guid[] AcceptedOps => new Guid[] { OpCodes.WmiInfoResponse };
-	private readonly IReadOnlySet<WmiInfo> registry = new HashSet<WmiInfo>()
+	internal class WmiInfoCollector : FeatureBase
+	{
+		public override Guid[] AcceptedOps => new Guid[] { OpCodes.WmiInfoResponse };
+		private readonly IReadOnlySet<WmiInfo> registry = new HashSet<WmiInfo>()
 	{
 		new WmiProcessList(),
 		new WmiServiceList(),
@@ -13,27 +14,28 @@ internal class WmiInfoCollector : FeatureBase
 		new WmiDiskInfo()
 	};
 
-	public WmiInfoCollector(IMessageSender sender) : base(sender, "wmi")
-	{
+		public WmiInfoCollector(IMessageSender sender) : base(sender, "wmi")
+		{
 
-	}
+		}
 
-	public override async Task HandleAsync(Client client, Guid op, byte[] data)
-	{
-		var rsp = data.Deserialize<WmiInfoResponse>();
-		foreach (var wi in registry.Where(r => r.WmiOp == rsp.WmiOp))
-			await wi.Handle(client, rsp.Data);
-	}
+		public override async Task HandleAsync(Client client, Guid op, byte[] data)
+		{
+			var rsp = data.Deserialize<WmiInfoResponse>();
+			foreach (var wi in registry.Where(r => r.WmiOp == rsp.WmiOp))
+				await wi.Handle(client, rsp.Data);
+		}
 
-	public override async Task<bool> HandleCommandAsync(string[] args)
-	{
-		if (args.Length < 2)
-			return false;
-		var filter = Filter.Parse(args[0]);
-		var count = 0;
-		foreach (var wi in registry.Where(r => string.Equals(r.Command, args[1])))
-			count += await SendAsync(filter, OpCodes.WmiInfoRequest, new WmiInfoRequest { WmiOp = wi.WmiOp });
-		Log.Information("Sent WMI dump of {type} request to total {count} clients.", args[1], count);
-		return true;
+		public override async Task<bool> HandleCommandAsync(string[] args)
+		{
+			if (args.Length < 2)
+				return false;
+			var filter = Filter.Parse(args[0]);
+			var count = 0;
+			foreach (var wi in registry.Where(r => string.Equals(r.Command, args[1])))
+				count += await SendAsync(filter, OpCodes.WmiInfoRequest, new WmiInfoRequest { WmiOp = wi.WmiOp });
+			Log.Information("Sent WMI dump of {type} request to total {count} clients.", args[1], count);
+			return true;
+		}
 	}
 }

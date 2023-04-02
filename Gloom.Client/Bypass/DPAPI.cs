@@ -1,4 +1,6 @@
-﻿namespace Gloom.Client.Bypass;
-internal class DPAPI
+﻿namespace Gloom.Client.Bypass
 {
+	internal class DPAPI
+	{
+	}
 }
