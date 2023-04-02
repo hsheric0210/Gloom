@@ -17,7 +17,7 @@ internal class FileUploader : FeatureBase
 		if (op == OpCodes.UploadFilePreRequest)
 		{
 			// Initiate uploading
-			var req = StructConvert.Bytes2Struct<OpStructs.UploadFilePreRequest>(data);
+			var req = data.Deserialize<OpStructs.UploadFilePreRequest>();
 			try
 			{
 				File.WriteAllBytes(req.Destination, new byte[] { 0x13, 0x37 });
@@ -25,7 +25,7 @@ internal class FileUploader : FeatureBase
 			catch (Exception ex)
 			{
 				Console.WriteLine($"Following path is unwritable '{req.Destination}' : {ex}");
-				await SendError(req.Ident, FileIOError.InvalidPath);
+				await SendError(req.Sid, FileIOError.InvalidPath);
 				return;
 			}
 
@@ -39,7 +39,7 @@ internal class FileUploader : FeatureBase
 		else if (op == OpCodes.UploadFileChunkRequest && chunks != null && counter != null)
 		{
 			// Receive file chunks
-			var req = StructConvert.Bytes2Struct<OpStructs.UploadFileChunkRequest>(data);
+			var req = data.Deserialize<OpStructs.UploadFileChunkRequest>();
 			if (chunks.Length <= req.ChunkIndex)
 			{
 #if DEBUG
@@ -54,7 +54,7 @@ internal class FileUploader : FeatureBase
 		else if (op == OpCodes.UploadFilePostRequest && chunks?.Length > 0 && counter != null)
 		{
 			// Finish uploading
-			var req = StructConvert.Bytes2Struct<OpStructs.UploadFilePostRequest>(data);
+			var req = data.Deserialize<OpStructs.UploadFilePostRequest>();
 			counter.Wait(); // Wait for all chunks to finish
 
 			// After all chunk finished, dispose the counter
@@ -84,14 +84,14 @@ internal class FileUploader : FeatureBase
 #if DEBUG
 							Console.WriteLine($"Error combining chunk #{i}: {ex}");
 #endif
-							await SendError(req.Ident, FileIOError.ChunkCombiningFailed);
+							await SendError(req.Sid, FileIOError.ChunkCombiningFailed);
 						}
 					}
 				}
 
 				await SendAsync(OpCodes.UploadFileResponse, new OpStructs.UploadFileResponse
 				{
-					Ident = req.Ident,
+					Sid = req.Sid,
 					ErrorCode = 0,
 					Sha512Hash = ihash.GetCurrentHash()
 				}, true);
@@ -104,7 +104,7 @@ internal class FileUploader : FeatureBase
 #if DEBUG
 				Console.WriteLine($"Error writing: {ex}");
 #endif
-				await SendError(req.Ident, FileIOError.WritingFailed);
+				await SendError(req.Sid, FileIOError.WritingFailed);
 			}
 			finally
 			{
@@ -115,5 +115,5 @@ internal class FileUploader : FeatureBase
 		}
 	}
 
-	private async Task SendError(Guid ident, int errorCode) => await SendAsync(OpCodes.UploadFileResponse, new OpStructs.UploadFileResponse { Ident = ident, ErrorCode = errorCode, Sha512Hash = Array.Empty<byte>() }, true);
+	private async Task SendError(Guid ident, int errorCode) => await SendAsync(OpCodes.UploadFileResponse, new OpStructs.UploadFileResponse { Sid = ident, ErrorCode = errorCode, Sha512Hash = Array.Empty<byte>() }, true);
 }

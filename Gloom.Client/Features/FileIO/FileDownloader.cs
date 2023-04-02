@@ -12,8 +12,8 @@ internal class FileDownloader : FeatureBase
 
 	public override async Task HandleAsync(Guid op, byte[] data)
 	{
-		var req = StructConvert.Bytes2Struct<OpStructs.DownloadFileRequest>(data);
-		var ident = req.Ident;
+		var req = data.Deserialize<OpStructs.DownloadFileRequest>();
+		var ident = req.Sid;
 		var bufferSize = req.BufferSize;
 
 		// Acquire file informations
@@ -29,7 +29,7 @@ internal class FileDownloader : FeatureBase
 #endif
 			await SendAsync(OpCodes.DownloadFilePreResponse, new OpStructs.DownloadFilePreResponse
 			{
-				Ident = ident,
+				Sid = ident,
 				ErrorCode = FileIOError.ReadingFailed,
 				TotalChunkCount = -1
 			}, true);
@@ -39,7 +39,7 @@ internal class FileDownloader : FeatureBase
 		// Check if the file really exists
 		if (!info.Exists)
 		{
-			await SendAsync(OpCodes.DownloadFilePreResponse, new OpStructs.DownloadFilePreResponse { Ident = ident, ErrorCode = FileIOError.InvalidPath, TotalChunkCount = -1 }, true);
+			await SendAsync(OpCodes.DownloadFilePreResponse, new OpStructs.DownloadFilePreResponse { Sid = ident, ErrorCode = FileIOError.InvalidPath, TotalChunkCount = -1 }, true);
 			return;
 		}
 
@@ -51,7 +51,7 @@ internal class FileDownloader : FeatureBase
 			var expectedTotalChunks = (size - size % bufferSize) / bufferSize + (size % bufferSize > 0 ? 1 : 0);
 			await SendAsync(OpCodes.DownloadFilePreResponse, new OpStructs.DownloadFilePreResponse
 			{
-				Ident = ident,
+				Sid = ident,
 				ErrorCode = 0,
 				TotalChunkCount = expectedTotalChunks
 			}, true);
@@ -61,13 +61,13 @@ internal class FileDownloader : FeatureBase
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 			{
 				ihash.AppendData(buffer, 0, bytesRead);
-				await SendAsync(OpCodes.DownloadFileChunkResponse, new OpStructs.DownloadFileChunkResponse { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, true);
+				await SendAsync(OpCodes.DownloadFileChunkResponse, new OpStructs.DownloadFileChunkResponse { Sid = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, true);
 			}
 		}
 		finally
 		{
 			ArrayPool<byte>.Shared.Return(buffer);
-			await SendAsync(OpCodes.DownloadFilePostResponse, new OpStructs.DownloadFilePostResponse { Ident = ident, ErrorCode = 0, Sha512Hash = ihash.GetCurrentHash() }, true);
+			await SendAsync(OpCodes.DownloadFilePostResponse, new OpStructs.DownloadFilePostResponse { Sid = ident, ErrorCode = 0, Sha512Hash = ihash.GetCurrentHash() }, true);
 		}
 	}
 }

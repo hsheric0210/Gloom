@@ -7,9 +7,9 @@ namespace Gloom;
 /// Simple .NET struct encoder/decoder.
 /// https://kdsoft-zeros.tistory.com/25
 /// </summary>
-public static class StructConvert
+public static class SerializerExtension
 {
-	public static byte[] Struct2Bytes(object obj)
+	public static byte[] Serialize(this object obj)
 	{
 		using var ms = new MemoryStream();
 		using (var xw = XmlWriter.Create(ms, new XmlWriterSettings { Encoding = new UTF8Encoding(false), Indent = false, OmitXmlDeclaration = true }))
@@ -20,7 +20,7 @@ public static class StructConvert
 		return ms.ToArray();
 	}
 
-	public static T Bytes2Struct<T>(byte[] buffer)
+	public static T Deserialize<T>(this byte[] buffer)
 	{
 		using var ms = new MemoryStream(buffer);
 		var serializer = new XmlSerializer(typeof(T));

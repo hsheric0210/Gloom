@@ -26,7 +26,7 @@ namespace Gloom.Client
 
 		public OpStructs.ClientHello MakeClientHello(string identifier) => new()
 		{
-			Identifier = identifier,
+			Name = identifier,
 			ClientRandom = clientRandom,
 			DHParameter = clientKey.Export(KeyBlobFormat.PkixPublicKey),
 			KDFIterations = kdfIterations,

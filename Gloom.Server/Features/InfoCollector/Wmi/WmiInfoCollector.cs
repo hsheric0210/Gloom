@@ -18,11 +18,11 @@ internal class WmiInfoCollector : FeatureBase
 
 	}
 
-	public override async Task HandleAsync(string from, Guid op, byte[] data)
+	public override async Task HandleAsync(Client client, Guid op, byte[] data)
 	{
-		var rsp = StructConvert.Bytes2Struct<WmiInfoResponse>(data);
+		var rsp = data.Deserialize<WmiInfoResponse>();
 		foreach (var wi in registry.Where(r => r.WmiOp == rsp.WmiOp))
-			await wi.Handle(from, rsp.Data);
+			await wi.Handle(client, rsp.Data);
 	}
 
 	public override async Task<bool> HandleCommandAsync(string[] args)
@@ -32,7 +32,7 @@ internal class WmiInfoCollector : FeatureBase
 		var filter = Filter.Parse(args[0]);
 		var count = 0;
 		foreach (var wi in registry.Where(r => string.Equals(r.Command, args[1])))
-			count += await SendAsync(filter, OpCodes.WmiInfoRequest, new WmiInfoRequest { WmiOp = wi.WmiOp }, true);
+			count += await SendAsync(filter, OpCodes.WmiInfoRequest, new WmiInfoRequest { WmiOp = wi.WmiOp });
 		Log.Information("Sent WMI dump of {type} request to total {count} clients.", args[1], count);
 		return true;
 	}

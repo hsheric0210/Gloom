@@ -2,5 +2,5 @@
 internal interface IMessageHandler
 {
 	public Guid[] AcceptedOps { get; }
-	public Task HandleAsync(string from, Guid op, byte[] data);
+	public Task HandleAsync(Client sender, Guid op, byte[] data);
 }

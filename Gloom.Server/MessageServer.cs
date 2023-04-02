@@ -4,20 +4,30 @@ using System.Collections.Immutable;
 
 namespace Gloom.Server
 {
+	public sealed record Client(string Address, string Name)
+	{
+		internal IMessageSender msgProcessor = null!;
+
+		public async Task<int> SendAsync<T>(Guid opCode, T data) => await msgProcessor.SendAsync(new Filter(FilterType.Equals, Address), opCode, data);
+
+		public override string ToString() => $"{Name} ({Address})";
+	}
+
 	internal class MessageServer : IMessageSender
 	{
 		private readonly ISet<IMessageHandler> handlerRegistry = new HashSet<IMessageHandler>();
 		private readonly IList<IWebSocketConnection> sockets = new List<IWebSocketConnection>();
 		private readonly IDictionary<IWebSocketConnection, MessageEncryptor> encryptors = new Dictionary<IWebSocketConnection, MessageEncryptor>();
+		private readonly IDictionary<string, string> clientNameMap = new Dictionary<string, string>();
 		private readonly WebSocketServer server;
 
-		public async Task<int> SendAsync<T>(Filter filter, Guid opCode, T data, bool eom) where T : struct
+		public async Task<int> SendAsync<T>(Filter filter, Guid opCode, T data)
 		{
 			var targets = sockets.Where(sock => filter.IsMatch(sock.ConnectionInfo.Host)).ToImmutableList();
 			var tasks = new List<Task>(targets.Count);
 
 			foreach (var socket in targets)
-				tasks.Add(socket.Send(encryptors[socket].Encrypt(opCode.NewPayload(StructConvert.Struct2Bytes(data)))));
+				tasks.Add(socket.Send(encryptors[socket].Encrypt(opCode.NewPayload(data.Serialize()))));
 
 			await Task.WhenAll(tasks);
 			return targets.Count;
@@ -58,10 +68,17 @@ namespace Gloom.Server
 			var guid = payload.GetGuid();
 			if (guid == OpCodes.ClientHello)
 			{
-				var hs = StructConvert.Bytes2Struct<OpStructs.ClientHello>(payload.GetData());
-				Log.Information("Client {client} ({id}) is trying to connect.", host, hs.Identifier);
+				var hs = payload.GetData().Deserialize<OpStructs.ClientHello>();
+				Log.Information("Client {client} ({name}) is trying to connect.", host, hs.Name);
 				encryptors[socket].ReceiveClientHello(hs);
-				socket.Send(OpCodes.ServerHello.NewPayload(StructConvert.Struct2Bytes(encryptors[socket].MakeServerHello())));
+				socket.Send(OpCodes.ServerHello.NewPayload(encryptors[socket].MakeServerHello().Serialize()));
+				Log.Information("Client {client} ({name}) is connected.", host, hs.Name);
+				var name = hs.Name;
+				foreach (var invchr in Path.GetInvalidFileNameChars())
+					name = name.Replace(invchr, '_');
+				if (!string.Equals(hs.Name, name, StringComparison.OrdinalIgnoreCase))
+					Log.Warning("Invalid characters in client name have been replaced: {prev} -> {new}", hs.Name, name);
+				clientNameMap[host] = name;
 			}
 			else
 			{
@@ -72,7 +89,7 @@ namespace Gloom.Server
 
 				try
 				{
-					SimpleParallel.ForEach(handlers, async handler => await handler.HandleAsync(host, opcode, data)); // Run all associated handlers in parallel
+					SimpleParallel.ForEach(handlers, async handler => await handler.HandleAsync(new Client(host, clientNameMap[host]) { msgProcessor = this }, opcode, data)); // Run all associated handlers in parallel
 				}
 				catch (Exception ex)
 				{

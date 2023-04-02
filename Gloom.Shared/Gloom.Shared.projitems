@@ -17,7 +17,7 @@
     <Compile Include="..\Gloom.Shared\PayloadPackerExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WmiOps\WmiOpCodes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WmiOps\WmiOpStructs.cs" />
-    <Compile Include="..\Gloom.Shared\StructConvert.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SerializerExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SimpleParallel.cs" />
   </ItemGroup>
 </Project>

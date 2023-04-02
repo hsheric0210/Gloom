@@ -9,16 +9,16 @@ internal class WmiServiceList : WmiInfo
 	{
 	}
 
-	public override async Task Handle(string from, byte[] data)
+	public override async Task Handle(Client client, byte[] data)
 	{
-		var rsp = StructConvert.Bytes2Struct<ServiceListResponse>(data);
-		var fileName = $"Service list of {from.Replace(':', '#')} at {DateTime.Now:yyyy-MM-dd-HH-mm-ss-ffff}.md";
+		var rsp = data.Deserialize<ServiceListResponse>();
+		var fileName = $"Service list of {client.Name} at {DateTime.Now:yyyy-MM-dd-HH-mm-ss-ffff}.md";
 		try
 		{
 			using var fw = new StreamWriter(fileName, false, new UTF8Encoding(false), 8192);
 			fw.WriteLine("# Services");
 			fw.WriteLine(rsp.List.ToMarkdownTable());
-			Log.Information("Process list of {client} written to {path}.", from, fileName);
+			Log.Information("Process list of {client} written to {path}.", client, fileName);
 		}
 		catch (Exception ex)
 		{

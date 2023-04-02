@@ -1,4 +1,5 @@
 ﻿using Gloom.Server.Features;
+using Gloom.Server.Features.FileIO;
 using Gloom.Server.Features.InfoCollector;
 using Gloom.Server.Features.InfoCollector.Wmi;
 using Serilog;
@@ -32,7 +33,8 @@ namespace Gloom.Server
 				new EnvVarsCollector(server),
 				new WmiInfoCollector(server),
 				new FileUploader(server),
-				new FileDownloader(server)
+				new FileDownloader(server),
+				new FileDeleter(server)
 			};
 			foreach (var feature in Features)
 				server.RegisterHandler(feature);

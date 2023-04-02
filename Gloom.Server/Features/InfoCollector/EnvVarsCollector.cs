@@ -11,9 +11,9 @@ internal class EnvVarsCollector : FeatureBase
 
 	}
 
-	public override async Task HandleAsync(string from, Guid op, byte[] data)
+	public override async Task HandleAsync(Client client, Guid op, byte[] data)
 	{
-		var str = StructConvert.Bytes2Struct<OpStructs.EnvVarsResponse>(data);
+		var str = data.Deserialize<OpStructs.EnvVarsResponse>();
 		if (!string.IsNullOrEmpty(saveToSpecificFile))
 		{
 			using var writer = File.AppendText(saveToSpecificFile);
@@ -23,7 +23,7 @@ internal class EnvVarsCollector : FeatureBase
 		else
 		{
 			foreach ((var key, var value) in str.Map)
-				Log.Information("[EnvVars of {client}] {key} = {value}", from, key, value);
+				Log.Information("[EnvVars of {client}] {key} = {value}", client, key, value);
 		}
 	}
 
@@ -32,7 +32,7 @@ internal class EnvVarsCollector : FeatureBase
 		if (args.Length == 0)
 			return false;
 		var filter = Filter.Parse(args[0]);
-		var count = await SendAsync(filter, OpCodes.EnvVarsRequest, new OpStructs.EnvVarsRequest(), true);
+		var count = await SendAsync(filter, OpCodes.EnvVarsRequest, new OpStructs.EnvVarsRequest());
 		if (args.Length >= 2 && !string.IsNullOrWhiteSpace(args[1]))
 		{
 			try

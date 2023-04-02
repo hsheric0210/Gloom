@@ -10,5 +10,5 @@ internal abstract class WmiInfo
 		WmiOp = wmiOp;
 	}
 
-	public abstract Task Handle(string from, byte[] data);
+	public abstract Task Handle(Client client, byte[] data);
 }

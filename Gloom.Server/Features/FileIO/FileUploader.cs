@@ -2,10 +2,10 @@
 using System.Buffers;
 using System.Security.Cryptography;
 
-namespace Gloom.Server.Features;
+namespace Gloom.Server.Features.FileIO;
 internal class FileUploader : FeatureBase
 {
-	private IDictionary<Guid, byte[]> hashRegistry = new Dictionary<Guid, byte[]>();
+	private readonly IDictionary<Guid, byte[]> hashRegistry = new Dictionary<Guid, byte[]>();
 
 	public FileUploader(IMessageSender sender) : base(sender, "up")
 	{
@@ -13,22 +13,22 @@ internal class FileUploader : FeatureBase
 
 	public override Guid[] AcceptedOps => new Guid[] { OpCodes.UploadFileResponse };
 
-	public override async Task HandleAsync(string from, Guid op, byte[] data)
+	public override async Task HandleAsync(Client client, Guid op, byte[] data)
 	{
-		var rsp = StructConvert.Bytes2Struct<OpStructs.UploadFileResponse>(data);
+		var rsp = data.Deserialize<OpStructs.UploadFileResponse>();
 		if (rsp.ErrorCode != 0)
 		{
-			Log.Error("Transfer failed with error code: {code}", rsp.ErrorCode);
+			Log.Error("{client} returned uploading error: {error}", rsp.ErrorCode);
 			return;
 		}
 
-		if (hashRegistry.ContainsKey(rsp.Ident) && rsp.Sha512Hash.Length > 0)
+		if (hashRegistry.ContainsKey(rsp.Sid) && rsp.Sha512Hash.Length > 0)
 		{
-			var hash = hashRegistry[rsp.Ident];
+			var hash = hashRegistry[rsp.Sid];
 			if (hash.SequenceEqual(rsp.Sha512Hash))
-				Log.Information("Hash matches: {hash}", hash);
+				Log.Information("Hash of the file sent to {client} matches: {hash}", client, hash);
 			else
-				Log.Error("Hash mismatches: local={myhash} vs remote={remotehash}", hash, rsp.Sha512Hash);
+				Log.Error("Hash of the file sent to {client} mismatches: local={myhash} vs remote={remotehash}", client, hash, rsp.Sha512Hash);
 		}
 	}
 
@@ -50,6 +50,7 @@ internal class FileUploader : FeatureBase
 		var dst = args[2];
 
 		var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+		int count;
 		try
 		{
 			var info = new FileInfo(src);
@@ -57,10 +58,10 @@ internal class FileUploader : FeatureBase
 			var expectedTotalChunks = (size - size % bufferSize) / bufferSize + (size % bufferSize > 0 ? 1 : 0);
 			await SendAsync(filter, OpCodes.UploadFilePreRequest, new OpStructs.UploadFilePreRequest
 			{
-				Ident = ident,
+				Sid = ident,
 				Destination = dst,
 				TotalChunkCount = expectedTotalChunks
-			}, true);
+			});
 
 			using var ihash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
 			using var fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -68,7 +69,7 @@ internal class FileUploader : FeatureBase
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 			{
 				ihash.AppendData(buffer, 0, bytesRead);
-				await SendAsync(filter, OpCodes.UploadFileChunkRequest, new OpStructs.UploadFileChunkRequest { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, false);
+				await SendAsync(filter, OpCodes.UploadFileChunkRequest, new OpStructs.UploadFileChunkRequest { Sid = ident, ChunkIndex = index, Data = buffer[..bytesRead] });
 
 				// Print progress
 				if (!Console.IsOutputRedirected)
@@ -83,15 +84,15 @@ internal class FileUploader : FeatureBase
 		finally
 		{
 			ArrayPool<byte>.Shared.Return(buffer);
-			await SendAsync(filter, OpCodes.UploadFilePostRequest, new OpStructs.UploadFilePostRequest
+			count = await SendAsync(filter, OpCodes.UploadFilePostRequest, new OpStructs.UploadFilePostRequest
 			{
-				Ident = ident,
+				Sid = ident,
 				Destination = dst,
 				BufferSize = bufferSize
-			}, true);
+			});
 		}
 
-		Log.Information("Sent the specified file to the clients clients.");
+		Log.Information("Sent the specified file to the {count} clients.", count);
 		return true;
 	}
 }

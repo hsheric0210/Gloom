@@ -6,7 +6,7 @@ public static class OpStructs
 	[Serializable]
 	public struct ClientHello // SSL Client Hello + Client Key Exchange
 	{
-		public string Identifier { get; set; }
+		public string Name { get; set; }
 		public byte[] ClientRandom { get; set; }
 		public byte[] DHParameter { get; set; }
 		public int KDFIterations { get; set; }
@@ -89,7 +89,7 @@ public static class OpStructs
 	[Serializable]
 	public struct UploadFilePreRequest
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public string Destination { get; set; }
 		public long TotalChunkCount { get; set; }
 	}
@@ -97,7 +97,7 @@ public static class OpStructs
 	[Serializable]
 	public struct UploadFilePostRequest
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public string Destination { get; set; }
 		public int BufferSize { get; set; }
 	}
@@ -105,7 +105,7 @@ public static class OpStructs
 	[Serializable]
 	public struct UploadFileChunkRequest
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public long ChunkIndex { get; set; }
 		public byte[] Data { get; set; }
 	}
@@ -113,7 +113,7 @@ public static class OpStructs
 	[Serializable]
 	public struct UploadFileResponse
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public int ErrorCode { get; set; }
 		public byte[] Sha512Hash { get; set; }
 	}
@@ -121,7 +121,7 @@ public static class OpStructs
 	[Serializable]
 	public struct DownloadFileRequest
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public string Source { get; set; }
 		public int BufferSize { get; set; }
 	}
@@ -129,7 +129,7 @@ public static class OpStructs
 	[Serializable]
 	public struct DownloadFileChunkResponse
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public long ChunkIndex { get; set; }
 		public byte[] Data { get; set; }
 	}
@@ -137,7 +137,7 @@ public static class OpStructs
 	[Serializable]
 	public struct DownloadFilePreResponse
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public int ErrorCode { get; set; }
 		public long TotalChunkCount { get; set; }
 	}
@@ -145,7 +145,7 @@ public static class OpStructs
 	[Serializable]
 	public struct DownloadFilePostResponse
 	{
-		public Guid Ident { get; set; }
+		public Guid Sid { get; set; }
 		public int ErrorCode { get; set; }
 		public byte[] Sha512Hash { get; set; }
 	}
@@ -154,14 +154,12 @@ public static class OpStructs
 	[Serializable]
 	public struct DeleteFileRequest
 	{
-		public Guid Ident { get; set; }
 		public string FilePath { get; set; }
 	}
 
 	[Serializable]
 	public struct DeleteFileResponse
 	{
-		public Guid Ident { get; set; }
 		public int ErrorCode { get; set; }
 	}
 

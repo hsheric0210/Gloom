@@ -56,7 +56,7 @@ namespace Gloom.Client
 		{
 			if (encryptor == null)
 				throw new InvalidOperationException("Client handshake not finished yet. (Message encryptor not available)");
-			await socket.SendAsync(encryptor.Encrypt(opCode.NewPayload(StructConvert.Struct2Bytes(data))), WebSocketMessageType.Binary, eom, cancel.Token);
+			await socket.SendAsync(encryptor.Encrypt(opCode.NewPayload(data.Serialize())), WebSocketMessageType.Binary, eom, cancel.Token);
 		}
 
 		private async Task ProcessMessages(ClientWebSocket socket)
@@ -118,12 +118,12 @@ namespace Gloom.Client
 
 			// Send client Handshake
 			var id = Environment.UserName + '@' + Environment.MachineName;
-			await socket.SendAsync(OpCodes.ClientHello.NewPayload(StructConvert.Struct2Bytes(encryptor.MakeClientHello(id))), WebSocketMessageType.Binary, true, cancel.Token);
+			await socket.SendAsync(OpCodes.ClientHello.NewPayload(encryptor.MakeClientHello(id).Serialize()), WebSocketMessageType.Binary, true, cancel.Token);
 
 			// Receive server handshake
 			var serverHs = new byte[8192]; // FIXME: Variable length buffer
 			await socket.ReceiveAsync(serverHs, cancel.Token);
-			encryptor.ReceiveServerHello(StructConvert.Bytes2Struct<OpStructs.ServerHello>(serverHs.GetData()));
+			encryptor.ReceiveServerHello(serverHs.GetData().Deserialize<OpStructs.ServerHello>());
 		}
 
 		public async Task Finish()

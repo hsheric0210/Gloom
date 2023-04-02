@@ -3,19 +3,19 @@
 namespace Gloom.Server;
 public class Filter
 {
-	private readonly FilterType type;
+	public FilterType Type { get; set; }
 	private readonly string expression;
 	private Regex? regex;
 
 	public Filter(FilterType type, string expression)
 	{
-		this.type = type;
+		Type = type;
 		this.expression = expression;
 	}
 
 	public bool IsMatch(string str)
 	{
-		switch (type)
+		switch (Type)
 		{
 			case FilterType.Equals:
 				return string.Equals(str, expression, StringComparison.OrdinalIgnoreCase);
