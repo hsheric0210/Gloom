@@ -52,10 +52,13 @@ internal class FileDownloader : FeatureBase
 			}
 			if (session.Chunks.Length <= req.ChunkIndex)
 			{
-				Log.Warning("Out-of-index file chunk received: {index} with {ident}", req.ChunkIndex, req.Ident);
+				Log.Warning("Out-of-index file chunk response received: {index} with {ident}", req.ChunkIndex, req.Ident);
 				return;
 			}
+
 			await File.WriteAllBytesAsync(session.Chunks[req.ChunkIndex], req.Data);
+			Console.CursorLeft = 0;
+			Console.Write($"{req.ChunkIndex} / {session.Chunks.Length} chunks received");
 			session.Counter.Signal();
 		}
 		else if (op == OpCodes.DownloadFilePostResponse)
@@ -76,11 +79,14 @@ internal class FileDownloader : FeatureBase
 			}
 			if (!sessions.TryGetValue(ident, out var session))
 			{
-				Log.Warning("Unauthorized file chunk received: {ident}", ident);
+				Log.Warning("Unauthorized file download response received: {ident}", ident);
 				return;
 			}
 			session.Counter.Wait();
 			session.Counter.Dispose();
+
+			Console.WriteLine();
+			Log.Information("Finished receiving file chunks.");
 
 			// Hash and Combine
 			var buffer = ArrayPool<byte>.Shared.Rent(config.BufferSize);
@@ -106,6 +112,8 @@ internal class FileDownloader : FeatureBase
 						}
 					}
 				}
+
+				Log.Information("Finished combining file chunks.");
 
 				var hash = ihash.GetCurrentHash();
 				if (hash.SequenceEqual(req.Sha512Hash))
@@ -157,7 +165,7 @@ internal class FileDownloader : FeatureBase
 			BufferSize = bufferSize
 		}, true);
 
-		Log.Information("Sent the download file request to the clients.");
+		Log.Information("Sent the download file request to the clients. Ident={ident}");
 		return true;
 	}
 }

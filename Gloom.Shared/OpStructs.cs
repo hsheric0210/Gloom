@@ -151,6 +151,20 @@ public static class OpStructs
 	}
 	#endregion
 
+	[Serializable]
+	public struct DeleteFileRequest
+	{
+		public Guid Ident { get; set; }
+		public string FilePath { get; set; }
+	}
+
+	[Serializable]
+	public struct DeleteFileResponse
+	{
+		public Guid Ident { get; set; }
+		public int ErrorCode { get; set; }
+	}
+
 	#region Remote File Execution
 	#endregion
 }

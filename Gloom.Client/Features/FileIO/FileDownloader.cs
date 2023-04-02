@@ -43,8 +43,6 @@ internal class FileDownloader : FeatureBase
 			return;
 		}
 
-		Console.WriteLine("Sending " + req.Source);
-
 		var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
 		using var ihash = IncrementalHash.CreateHash(HashAlgorithmName.SHA512);
 		try
@@ -63,7 +61,7 @@ internal class FileDownloader : FeatureBase
 			for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 			{
 				ihash.AppendData(buffer, 0, bytesRead);
-				await SendAsync(OpCodes.DownloadFileChunkResponse, new OpStructs.DownloadFileChunkResponse { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, false);
+				await SendAsync(OpCodes.DownloadFileChunkResponse, new OpStructs.DownloadFileChunkResponse { Ident = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, true);
 			}
 		}
 		finally
