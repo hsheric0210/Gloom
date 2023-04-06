@@ -16,7 +16,7 @@ Use VM(VirtualBox, VMware, etc.) or Sandbox(Sandboxie, etc.) to execute the clie
 ## Features
 * [x] Process list collector
 * [x] Environment variable collector
-* [ ] File uploader / downloader
+* [x] File uploader / downloader
 * [ ] Remote file executor
 * [ ] KeyLogger
 * [ ] Clipboard Logger
