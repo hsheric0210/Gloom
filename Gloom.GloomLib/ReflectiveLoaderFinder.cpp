@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ReflectiveLoaderFinder.h"
 
 template<typename _ntHeaderStruct>
