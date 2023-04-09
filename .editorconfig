@@ -24,7 +24,7 @@ file_header_template = unset
 
 # this. and Me. preferences
 dotnet_style_qualification_for_event = false:warning
-dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_field = false
 dotnet_style_qualification_for_method = false:warning
 dotnet_style_qualification_for_property = false:warning
 
@@ -294,6 +294,9 @@ dotnet_naming_style.camelcase.required_suffix =
 dotnet_naming_style.camelcase.word_separator = 
 dotnet_naming_style.camelcase.capitalization = camel_case
 
+# Visual Studio generated .editorconfig file with C++ settings.
+root = true
+
 [*.{c++,cc,cpp,cppm,cxx,h,h++,hh,hpp,hxx,inl,ipp,ixx,tlh,tli}]
 
 # Visual C++ Code Style settings
@@ -307,22 +310,22 @@ cpp_indent_multi_line_relative_to = innermost_parenthesis
 cpp_indent_within_parentheses = indent
 cpp_indent_preserve_within_parentheses = true
 cpp_indent_case_contents = true
-cpp_indent_case_labels = false
+cpp_indent_case_labels = true
 cpp_indent_case_contents_when_block = false
 cpp_indent_lambda_braces_when_parameter = true
-cpp_indent_goto_labels = one_left
+cpp_indent_goto_labels = leftmost_column
 cpp_indent_preprocessor = leftmost_column
 cpp_indent_access_specifiers = false
 cpp_indent_namespace_contents = true
 cpp_indent_preserve_comments = false
-cpp_new_line_before_open_brace_namespace = ignore
-cpp_new_line_before_open_brace_type = ignore
-cpp_new_line_before_open_brace_function = ignore
-cpp_new_line_before_open_brace_block = ignore
-cpp_new_line_before_open_brace_lambda = ignore
-cpp_new_line_scope_braces_on_separate_lines = false
-cpp_new_line_close_brace_same_line_empty_type = false
-cpp_new_line_close_brace_same_line_empty_function = false
+cpp_new_line_before_open_brace_namespace = new_line
+cpp_new_line_before_open_brace_type = new_line
+cpp_new_line_before_open_brace_function = new_line
+cpp_new_line_before_open_brace_block = new_line
+cpp_new_line_before_open_brace_lambda = new_line
+cpp_new_line_scope_braces_on_separate_lines = true
+cpp_new_line_close_brace_same_line_empty_type = true
+cpp_new_line_close_brace_same_line_empty_function = true
 cpp_new_line_before_catch = true
 cpp_new_line_before_else = true
 cpp_new_line_before_while_in_do_while = false
@@ -339,7 +342,7 @@ cpp_space_before_block_open_brace = true
 cpp_space_between_empty_braces = false
 cpp_space_before_initializer_list_open_brace = false
 cpp_space_within_initializer_list_braces = true
-cpp_space_preserve_in_initializer_list = true
+cpp_space_preserve_in_initializer_list = false
 cpp_space_before_open_square_bracket = false
 cpp_space_within_square_brackets = false
 cpp_space_before_empty_square_brackets = false
@@ -357,6 +360,6 @@ cpp_space_after_semicolon = true
 cpp_space_remove_around_unary_operator = true
 cpp_space_around_binary_operator = insert
 cpp_space_around_assignment_operator = insert
-cpp_space_pointer_reference_alignment = left
+cpp_space_pointer_reference_alignment = right
 cpp_space_around_ternary_operator = insert
-cpp_wrap_preserve_blocks = one_liners
+cpp_wrap_preserve_blocks = never

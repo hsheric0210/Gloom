@@ -32,10 +32,6 @@
 		<PackageReference Include="System.Management" Version="7.0.0" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Features\Inject\" />
-	</ItemGroup>
-
 	<Import Project="..\Gloom.Shared\Gloom.Shared.projitems" Label="Shared" />
 
 </Project>
