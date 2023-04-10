@@ -34,7 +34,7 @@
 			}
 
 			// NOTE: This is local function, not an weird expression, for those whom doesn't know latest C# features.
-			async Task Respond(int errorCode) => await SendAsync(OpCodes.DeleteFileResponse, new OpStructs.DeleteFileResponse { ErrorCode = errorCode }, true);
+			async Task Respond(int errorCode) => await SendAsync(OpCodes.DeleteFileResponse, new OpStructs.DeleteFileResponse { ErrorCode = errorCode });
 		}
 	}
 }

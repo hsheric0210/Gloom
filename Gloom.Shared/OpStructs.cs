@@ -168,6 +168,7 @@
 		public struct DllInjectionRequest
 		{
 			public int TargetProcessId;
+			public string ReflectiveLoaderProcName;
 			public byte[] TheDll;
 		}
 
