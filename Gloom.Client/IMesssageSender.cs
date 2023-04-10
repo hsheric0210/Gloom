@@ -2,6 +2,6 @@
 {
 	public interface IMessageSender
 	{
-		public Task SendAsync(Guid opCode, object data, bool eom);
+		public Task SendAsync(Guid opCode, object data);
 	}
 }

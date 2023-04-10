@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "util.h"
-#include "ImportedProcs.h"
+#include "ProcedureDefs.h"
 #include "SilentProcAddr.h"
 #include <random>
 
@@ -22,4 +22,4 @@
 #define RINJ_ERR_UNLOCK_PROCMEM_DLL		11
 #define RINJ_ERR_CREATE_THREAD			12
 
-DllExport ULONGLONG ReflectiveDllInject(DWORD pid, LPCSTR reflectiveLoaderProcName, size_t dllDataSize, LPVOID dllDataHeap, size_t dllEntryParameterSize, LPVOID dllEntryParameterHeap);
+DllExport ULONGLONG RefInject(DWORD pid, LPCSTR reflectiveLoaderProcName, size_t dllDataSize, LPVOID dllDataHeap, size_t dllEntryParameterSize, LPVOID dllEntryParameterHeap);

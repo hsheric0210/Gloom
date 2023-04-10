@@ -52,11 +52,11 @@ namespace Gloom.Client
 
 		public void RegisterHandler(IMessageHandler handler) => handlerRegistry.Add(handler);
 
-		public async Task SendAsync(Guid opCode, object data, bool eom)
+		public async Task SendAsync(Guid opCode, object data)
 		{
 			if (encryptor == null)
 				throw new InvalidOperationException("Client handshake not finished yet. (Message encryptor not available)");
-			await socket.SendAsync(encryptor.Encrypt(opCode.NewPayload(data.Serialize())), WebSocketMessageType.Binary, eom, cancel.Token);
+			await socket.SendAsync(encryptor.Encrypt(opCode.NewPayload(data.Serialize())), WebSocketMessageType.Binary, true, cancel.Token);
 		}
 
 		private async Task ProcessMessages(ClientWebSocket socket)

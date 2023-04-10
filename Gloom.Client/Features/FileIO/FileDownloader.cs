@@ -33,14 +33,14 @@ namespace Gloom.Client.Features.FileIO
 					Sid = ident,
 					ErrorCode = FileIOError.ReadingFailed,
 					TotalChunkCount = -1
-				}, true);
+				});
 				return;
 			}
 
 			// Check if the file really exists
 			if (!info.Exists)
 			{
-				await SendAsync(OpCodes.DownloadFilePreResponse, new OpStructs.DownloadFilePreResponse { Sid = ident, ErrorCode = FileIOError.InvalidPath, TotalChunkCount = -1 }, true);
+				await SendAsync(OpCodes.DownloadFilePreResponse, new OpStructs.DownloadFilePreResponse { Sid = ident, ErrorCode = FileIOError.InvalidPath, TotalChunkCount = -1 });
 				return;
 			}
 
@@ -55,20 +55,20 @@ namespace Gloom.Client.Features.FileIO
 					Sid = ident,
 					ErrorCode = 0,
 					TotalChunkCount = expectedTotalChunks
-				}, true);
+				});
 
 				using var fs = info.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 				long index = 0;
 				for (int bytesRead; (bytesRead = fs.Read(buffer, 0, buffer.Length)) != 0; index++)
 				{
 					ihash.AppendData(buffer, 0, bytesRead);
-					await SendAsync(OpCodes.DownloadFileChunkResponse, new OpStructs.DownloadFileChunkResponse { Sid = ident, ChunkIndex = index, Data = buffer[..bytesRead] }, true);
+					await SendAsync(OpCodes.DownloadFileChunkResponse, new OpStructs.DownloadFileChunkResponse { Sid = ident, ChunkIndex = index, Data = buffer[..bytesRead] });
 				}
 			}
 			finally
 			{
 				ArrayPool<byte>.Shared.Return(buffer);
-				await SendAsync(OpCodes.DownloadFilePostResponse, new OpStructs.DownloadFilePostResponse { Sid = ident, ErrorCode = 0, Sha512Hash = ihash.GetCurrentHash() }, true);
+				await SendAsync(OpCodes.DownloadFilePostResponse, new OpStructs.DownloadFilePostResponse { Sid = ident, ErrorCode = 0, Sha512Hash = ihash.GetCurrentHash() });
 			}
 		}
 	}

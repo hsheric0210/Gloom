@@ -163,6 +163,22 @@
 			public int ErrorCode { get; set; }
 		}
 
+		#region DLL Injection
+		[Serializable]
+		public struct DllInjectionRequest
+		{
+			public int TargetProcessId;
+			public byte[] TheDll;
+		}
+
+		[Serializable]
+		public struct DllInjectionResponse
+		{
+			public int ErrorCode { get; set; }
+			public int GetLastError { get; set; }
+		}
+		#endregion
+
 		#region Remote File Execution
 		#endregion
 	}

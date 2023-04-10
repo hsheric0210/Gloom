@@ -24,7 +24,7 @@ namespace Gloom.Client.Features.InfoCollector
 			{
 				Map = BuildEnvVarsList()
 			};
-			await SendAsync(OpCodes.EnvVarsResponse, evlist, true);
+			await SendAsync(OpCodes.EnvVarsResponse, evlist);
 		}
 	}
 }

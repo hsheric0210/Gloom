@@ -64,6 +64,11 @@
 		public static readonly Guid DeleteFileResponse = Guid.Parse("1d4df5ea-7077-49df-a723-6bdaaa3835ca");
 		#endregion
 
+		#region DLL Injection
+		public static readonly Guid DllInjectionRequest = Guid.Parse("844df343-6e99-4331-bb94-75a2774a0822");
+		public static readonly Guid DllInjectionResult = Guid.Parse("103b25f5-d4be-47da-abfd-5cd8f67cf442");
+		#endregion
+
 		#region Remote File Execution
 		public static readonly Guid RemoteExecutionRequest = Guid.Parse("82e542e7-501f-474a-937b-4068628cd6c2");
 		public static readonly Guid RemoteExecutionResponse = Guid.Parse("22728337-cebd-4bde-8cd6-434d0b8fb813");

@@ -21,7 +21,7 @@
     <ClInclude Include="SilentProcAddr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImportedProcs.h">
+    <ClInclude Include="ProcedureDefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="util.h">
@@ -31,6 +31,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ReflectiveLoaderFinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="magics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

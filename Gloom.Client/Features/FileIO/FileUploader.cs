@@ -95,7 +95,7 @@ namespace Gloom.Client.Features.FileIO
 						Sid = req.Sid,
 						ErrorCode = 0,
 						Sha512Hash = ihash.GetCurrentHash()
-					}, true);
+					});
 
 					// Delete chunks
 					Directory.Delete(Path.GetDirectoryName(chunks[0])!, true);
@@ -116,6 +116,6 @@ namespace Gloom.Client.Features.FileIO
 			}
 		}
 
-		private async Task SendError(Guid ident, int errorCode) => await SendAsync(OpCodes.UploadFileResponse, new OpStructs.UploadFileResponse { Sid = ident, ErrorCode = errorCode, Sha512Hash = Array.Empty<byte>() }, true);
+		private async Task SendError(Guid ident, int errorCode) => await SendAsync(OpCodes.UploadFileResponse, new OpStructs.UploadFileResponse { Sid = ident, ErrorCode = errorCode, Sha512Hash = Array.Empty<byte>() });
 	}
 }

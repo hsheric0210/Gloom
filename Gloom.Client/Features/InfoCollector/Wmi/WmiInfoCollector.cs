@@ -19,7 +19,7 @@ namespace Gloom.Client.Features.InfoCollector.Wmi
 		{
 			var req = data.Deserialize<WmiInfoRequest>();
 			foreach (var wi in registry.Where(r => r.WmiOp == req.WmiOp))
-				await SendAsync(OpCodes.WmiInfoResponse, new WmiInfoResponse { WmiOp = wi.WmiOp, Data = wi.Collect().Serialize() }, true);
+				await SendAsync(OpCodes.WmiInfoResponse, new WmiInfoResponse { WmiOp = wi.WmiOp, Data = wi.Collect().Serialize() });
 		}
 	}
 }

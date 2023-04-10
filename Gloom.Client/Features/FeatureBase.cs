@@ -9,6 +9,6 @@
 
 		public abstract Task HandleAsync(Guid op, byte[] data);
 
-		protected async Task SendAsync(Guid op, object data, bool eom) => await sender.SendAsync(op, data, eom);
+		protected async Task SendAsync(Guid op, object data) => await sender.SendAsync(op, data);
 	}
 }

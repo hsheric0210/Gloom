@@ -1,8 +1,6 @@
 #pragma once
 #include "pch.h"
 
-#define XOR_KEY 'G'
-
 typedef struct _UNICODE_STR
 {
 	USHORT Length;

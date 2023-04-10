@@ -3,19 +3,19 @@
 #include "ReflectiveLoaderFinder.h"
 
 // You must allocate an heap or virtual memory and copy DLL data on it.
-ULONGLONG ReflectiveDllInjectInternal(DWORD pid, LPCSTR reflectiveLoaderProcName, size_t dllDataSize, LPVOID dllDataHeap, size_t dllEntryParameterSize, LPVOID dllEntryParameterHeap)
+ULONGLONG InjectToInternal(DWORD pid, LPCSTR reflectiveLoaderProcName, size_t dllDataSize, LPVOID dllDataHeap, size_t dllEntryParameterSize, LPVOID dllEntryParameterHeap)
 {
-	auto myOpenProcess = (MyOpenProcess)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x08\x37\x22\x29\x17\x35\x28\x24\x22\x34\x34");
-	auto myVirtualAllocEx = (MyVirtualAllocEx)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x11\x2E\x35\x33\x32\x26\x2B\x06\x2B\x2B\x28\x24\x02\x3F");
-	auto myWriteProcessMemory = (MyWriteProcessMemory)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x10\x35\x2E\x33\x22\x17\x35\x28\x24\x22\x34\x34\x0A\x22\x2A\x28\x35\x3E");
-	auto myReadProcessMemory = (MyReadProcessMemory)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x15\x22\x26\x23\x17\x35\x28\x24\x22\x34\x34\x0A\x22\x2A\x28\x35\x3E");
-	auto myVirtualProtect = (MyVirtualProtectEx)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x11\x2E\x35\x33\x32\x26\x2B\x17\x35\x28\x33\x22\x24\x33\x02\x3F");
-	auto myVirtualFreeEx = (MyVirtualFreeEx)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x11\x2E\x35\x33\x32\x26\x2B\x01\x35\x22\x22\x02\x3F");
-	auto myGetCurrentProcess = (MyGetCurrentProcess)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x00\x22\x33\x04\x32\x35\x35\x22\x29\x33\x17\x35\x28\x24\x22\x34\x34");
-	auto myCreateRemoteThread = (MyCreateRemoteThread)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x04\x35\x22\x26\x33\x22\x15\x22\x2A\x28\x33\x22\x13\x2F\x35\x22\x26\x23");
-	auto myWaitForSingleObject = (MyWaitForSingleObject)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x10\x26\x2E\x33\x01\x28\x35\x14\x2E\x29\x20\x2B\x22\x08\x25\x2D\x22\x24\x33");
-	auto myCloseHandle = (MyCloseHandle)SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x04\x2B\x28\x34\x22\x0F\x26\x29\x23\x2B\x22");
-	LPVOID myBTITAddr = SilentProcAddr(L"\x2C\x22\x35\x29\x22\x2B\x74\x75\x69\x23\x2B\x2B", "\x05\x26\x34\x22\x13\x2F\x35\x22\x26\x23\x0E\x29\x2E\x33\x13\x2F\x32\x29\x2C");
+	auto myOpenProcess = (MyOpenProcess)SilentProcAddr(MODULE_KERNEL32, PROC_OpenProcess);
+	auto myVirtualAllocEx = (MyVirtualAllocEx)SilentProcAddr(MODULE_KERNEL32, PROC_VirtualAllocEx);
+	auto myWriteProcessMemory = (MyWriteProcessMemory)SilentProcAddr(MODULE_KERNEL32, PROC_WriteProcessMemory);
+	auto myReadProcessMemory = (MyReadProcessMemory)SilentProcAddr(MODULE_KERNEL32, PROC_ReadProcessMemory);
+	auto myVirtualProtectEx = (MyVirtualProtectEx)SilentProcAddr(MODULE_KERNEL32, PROC_VirtualProtectEx);
+	auto myVirtualFreeEx = (MyVirtualFreeEx)SilentProcAddr(MODULE_KERNEL32, PROC_VirtualFreeEx);
+	auto myGetCurrentProcess = (MyGetCurrentProcess)SilentProcAddr(MODULE_KERNEL32, PROC_GetCurrentProcess);
+	auto myCreateRemoteThread = (MyCreateRemoteThread)SilentProcAddr(MODULE_KERNEL32, PROC_CreateRemoteThread);
+	auto myWaitForSingleObject = (MyWaitForSingleObject)SilentProcAddr(MODULE_KERNEL32, PROC_WaitForSingleObject);
+	auto myCloseHandle = (MyCloseHandle)SilentProcAddr(MODULE_KERNEL32, PROC_CloseHandle);
+	LPVOID myBTITAddr = SilentProcAddr(MODULE_KERNEL32, PROC_BaseThreadInitThunk);
 
 	DWORD loaderOffset = GetReflectiveLoaderOffset((UINT_PTR)dllDataHeap, reflectiveLoaderProcName);
 	if (!loaderOffset)
@@ -59,7 +59,7 @@ ULONGLONG ReflectiveDllInjectInternal(DWORD pid, LPCSTR reflectiveLoaderProcName
 			return COMBINE_ERR(RINJ_ERR_READ_MY_BTIT);
 
 		// my BTIT address = their BTIT address (because base address of kernel32.dll is same across all processes)
-		state = myVirtualProtect(processHandle, myBTITAddr, sizeof(myBTITData), PAGE_EXECUTE_READWRITE, &oldProtect);
+		state = myVirtualProtectEx(processHandle, myBTITAddr, sizeof(myBTITData), PAGE_EXECUTE_READWRITE, &oldProtect);
 		if (!state)
 			return COMBINE_ERR(RINJ_ERR_UNLOCK_PROC_BTIT);
 
@@ -67,7 +67,7 @@ ULONGLONG ReflectiveDllInjectInternal(DWORD pid, LPCSTR reflectiveLoaderProcName
 		if (!state || writtenBTIT != sizeof(myBTITData))
 			return COMBINE_ERR(RINJ_ERR_OVERWRITE_PROC_BTIT);
 
-		state = myVirtualProtect(processHandle, myBTITAddr, sizeof(myBTITData), oldProtect, &oldProtect);
+		state = myVirtualProtectEx(processHandle, myBTITAddr, sizeof(myBTITData), oldProtect, &oldProtect);
 		if (!state)
 			return COMBINE_ERR(RINJ_ERR_RELOCK_PROC_BTIT);
 	}
@@ -80,7 +80,7 @@ ULONGLONG ReflectiveDllInjectInternal(DWORD pid, LPCSTR reflectiveLoaderProcName
 	if (!state)
 		return COMBINE_ERR(RINJ_ERR_WRITE_PROCMEM_EPARAM);
 
-	state = myVirtualProtect(processHandle, remoteDLLMemory, dllDataSize, PAGE_EXECUTE_READ, &oldProtect);
+	state = myVirtualProtectEx(processHandle, remoteDLLMemory, dllDataSize, PAGE_EXECUTE_READ, &oldProtect);
 	if (!state)
 		return COMBINE_ERR(RINJ_ERR_UNLOCK_PROCMEM_DLL);
 
@@ -98,11 +98,11 @@ ULONGLONG ReflectiveDllInjectInternal(DWORD pid, LPCSTR reflectiveLoaderProcName
 
 }
 
-ULONGLONG ReflectiveDllInject(DWORD pid, LPCSTR reflectiveLoaderProcName, size_t dllDataSize, LPVOID dllDataHeap, size_t dllEntryParameterSize, LPVOID dllEntryParameterHeap)
+ULONGLONG RefInject(DWORD pid, LPCSTR reflectiveLoaderProcName, size_t dllDataSize, LPVOID dllDataHeap, size_t dllEntryParameterSize, LPVOID dllEntryParameterHeap)
 {
 	__try
 	{
-		return ReflectiveDllInjectInternal(pid, reflectiveLoaderProcName, dllDataSize, dllDataHeap, dllEntryParameterSize, dllEntryParameterHeap);
+		return InjectToInternal(pid, reflectiveLoaderProcName, dllDataSize, dllDataHeap, dllEntryParameterSize, dllEntryParameterHeap);
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
