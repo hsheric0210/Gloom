@@ -69,9 +69,14 @@
 		public static readonly Guid DllInjectionResult = Guid.Parse("103b25f5-d4be-47da-abfd-5cd8f67cf442");
 		#endregion
 
-		#region Remote File Execution
-		public static readonly Guid RemoteExecutionRequest = Guid.Parse("82e542e7-501f-474a-937b-4068628cd6c2");
-		public static readonly Guid RemoteExecutionResponse = Guid.Parse("22728337-cebd-4bde-8cd6-434d0b8fb813");
+		#region Shell
+		public static readonly Guid ShellOpenRequest = Guid.Parse("66ac3136-c856-4698-80ba-f2014b622f16");
+		public static readonly Guid ShellInRequest = Guid.Parse("422a81cf-c89a-4438-a19d-4aa8f447b458");
+		public static readonly Guid ShellOutResponse = Guid.Parse("252b0308-410b-49f3-9fc5-2c97640ffebe");
+		public static readonly Guid ShellErrResponse = Guid.Parse("7c3bcafc-b62b-41e7-9fcd-2d6780b32810");
+		public static readonly Guid ShellExitRequest = Guid.Parse("1171ba9b-f440-4f83-9a18-5a726a6b11d9"); // When the shell window closed in Server side. (When the server opens a shell, a new console window pops up in Server side)
+		public static readonly Guid ShellExitResponse = Guid.Parse("ea62ee10-85d1-4bda-8860-2d7747b2c27f"); // When the shell process exited
+
 		#endregion
 	}
 }
