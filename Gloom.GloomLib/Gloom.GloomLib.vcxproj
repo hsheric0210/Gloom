@@ -145,13 +145,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ProcedureDefs.h" />
-    <ClInclude Include="magics.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReflectiveDllInject.h" />
     <ClInclude Include="ReflectiveLoaderFinder.h" />
-    <ClInclude Include="SilentProcAddr.h" />
-    <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -163,7 +159,6 @@
     </ClCompile>
     <ClCompile Include="ReflectiveDllInject.cpp" />
     <ClCompile Include="ReflectiveLoaderFinder.cpp" />
-    <ClCompile Include="SilentProcAddr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />

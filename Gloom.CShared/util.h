@@ -1,6 +1,4 @@
 #pragma once
-#include "pch.h"
-
 #define DllExport extern "C" __declspec(dllexport)
 
 #define COMBINE(hi, lo)			(ULONGLONG)(((hi) << 16) | (lo))
