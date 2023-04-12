@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Gloom
+namespace Gloom.Server
 {
 	/// <summary>
 	/// to-markdown-table
@@ -9,7 +9,7 @@ namespace Gloom
 	/// </summary>
 	public static class LinqMarkdownTableExtensions
 	{
-		public static string ToMarkdownTableSingleton<T>(this T source) => ToMarkdownTable(new T[1] { source });
+		public static string ToMarkdownTableSingleton<T>(this T source) => (new T[1] { source }).ToMarkdownTable();
 
 		public static string ToMarkdownTable<T>(this IEnumerable<T> source)
 		{

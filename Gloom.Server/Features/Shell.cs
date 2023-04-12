@@ -19,9 +19,9 @@ namespace Gloom.Server.Features
 
 		}
 
-		public override Task<bool> HandleCommandAsync(string[] args)
+		public override async Task<bool> HandleCommandAsync(string[] args)
 		{
-
+			return true;
 		}
 	}
 }
