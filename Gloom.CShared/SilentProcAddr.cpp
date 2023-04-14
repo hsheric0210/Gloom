@@ -1,9 +1,31 @@
-#include "pch.h"
 #include "SilentProcAddr.h"
 #include "util.h"
+#include <unordered_map>
+
+std::unordered_map<std::wstring, ULONG_PTR> procCache;
+
+// Using JenkinsOAAT to store 
+UINT JenkinsOAAT(char *msg, size_t len)
+{
+	UINT hash, i;
+	for (hash = i = 0; i < len; ++i)
+	{
+		hash += msg[i];
+		hash += (hash << 10);
+		hash ^= (hash >> 6);
+	}
+	hash += (hash << 3);
+	hash ^= (hash >> 11);
+	hash += (hash << 15);
+	return hash;
+}
 
 FARPROC SilentProcAddr(std::wstring libName, std::string procName)  // Intentional copy
 {
+	std::wstring cacheKey = libName + L'!' + std::wstring(procName.begin(), procName.end());
+	auto cached = procCache.find(cacheKey);
+	if (cached != procCache.end())
+		return (FARPROC)cached->second;
 	int i, libNameLen = libName.length(), procNameLen = procName.length();
 	for (i = 0; i < libNameLen; i++)
 		libName[i] ^= XOR_KEY;
@@ -51,6 +73,7 @@ FARPROC SilentProcAddr(std::wstring libName, std::string procName)  // Intention
 					UINT_PTR addr = (base + exportDir->AddressOfFunctions);
 					addr += (DEREF_16(nameOrdinals) * sizeof(DWORD));
 					addr = base + DEREF_32(addr);
+					procCache[cacheKey] = addr;
 					return (FARPROC)addr;
 				}
 

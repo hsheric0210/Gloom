@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Feckdoor.InputLog
+namespace Gloom.Client.Features.Logger.InputLog
 {
 	internal abstract class InputLogEntry
 	{

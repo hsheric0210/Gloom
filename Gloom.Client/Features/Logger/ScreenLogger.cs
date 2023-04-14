@@ -6,14 +6,14 @@ using System.Drawing.Imaging;
 
 namespace Feckdoor.InputLog
 {
-	public class ScreenCapturer : IDisposable
+	public class ScreenLogger : IDisposable
 	{
 		protected readonly CancellationTokenSource cancel;
 
 		private readonly ImageFormat imageFormat = null!;
 		private bool disposed;
 
-		public ScreenCapturer()
+		public ScreenLogger()
 		{
 			cancel = new CancellationTokenSource();
 

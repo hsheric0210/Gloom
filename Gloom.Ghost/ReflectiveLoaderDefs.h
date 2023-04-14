@@ -2,7 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "../Gloom.CShared/util.h"
+#include "util.h"
 
 #define DLL_QUERY_HMODULE		6
 

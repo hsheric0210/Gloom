@@ -9,11 +9,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="InputLog\**" />
 		<Compile Remove="Screencapture\**" />
-		<EmbeddedResource Remove="InputLog\**" />
 		<EmbeddedResource Remove="Screencapture\**" />
-		<None Remove="InputLog\**" />
 		<None Remove="Screencapture\**" />
 	</ItemGroup>
 
@@ -30,6 +27,10 @@
 		<PackageReference Include="Konscious.Security.Cryptography.Argon2" Version="1.3.0" />
 		<PackageReference Include="NSec.Cryptography" Version="22.4.0" />
 		<PackageReference Include="System.Management" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Features\Grabber\" />
 	</ItemGroup>
 
 	<Import Project="..\Gloom.Shared\Gloom.Shared.projitems" Label="Shared" />

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace Feckdoor.InputLog
+namespace Gloom.Client.Features.Logger.InputLog
 {
 	internal static class InputLogWriter
 	{
@@ -33,7 +33,7 @@ namespace Feckdoor.InputLog
 
 		private static void WriteUndone(string format)
 		{
-			string inputLogFile = string.Format(format, DateTime.Now, RollingIndex);
+			var inputLogFile = string.Format(format, DateTime.Now, RollingIndex);
 
 			// If already exists
 			if (RollingRequested)
@@ -67,7 +67,7 @@ namespace Feckdoor.InputLog
 					}
 				}
 
-				long size = new FileInfo(inputLogFile).Length;
+				var size = new FileInfo(inputLogFile).Length;
 				if (size >= Config.TheConfig.InputLog.RollingSize)
 				{
 					RollingIndex++;

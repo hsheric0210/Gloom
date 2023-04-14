@@ -1,5 +1,8 @@
 #pragma once
-#include "pch.h"
+#include <Windows.h>
+#include <string>
+#include <algorithm>
+#include "ProcedureDefs.h"
 
 typedef struct _UNICODE_STR
 {

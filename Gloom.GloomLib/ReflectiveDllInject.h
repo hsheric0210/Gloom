@@ -1,8 +1,8 @@
 #pragma once
 #include "pch.h"
-#include "../Gloom.CShared/util.h"
-#include "../Gloom.CShared/ProcedureDefs.h"
-#include "../Gloom.CShared/SilentProcAddr.h"
+#include "util.h"
+#include "ProcedureDefs.h"
+#include "SilentProcAddr.h"
 #include <random>
 
 #define REFLECTIVE_LOADER_SIZE			(1024 * 1024)

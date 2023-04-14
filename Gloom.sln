@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gloom.GloomLib", "Gloom.Glo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gloom.Ghost", "Gloom.Ghost\Gloom.Ghost.vcxproj", "{DDA4D155-AA55-44BE-8C50-8EC4CA1B7252}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gloom.CShared", "Gloom.CShared\Gloom.CShared.vcxitems", "{FCC333EE-D2CC-4E1C-B046-90BA1E4AB2C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,9 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Gloom.Shared\Gloom.Shared.projitems*{14ccd117-b4c5-413f-bba8-cb4863f9c4da}*SharedItemsImports = 13
 		Gloom.Shared\Gloom.Shared.projitems*{9cd2bf1b-04c6-4e3e-9087-10d63b45ed57}*SharedItemsImports = 5
+		Gloom.CShared\Gloom.CShared.vcxitems*{dda4d155-aa55-44be-8c50-8ec4ca1b7252}*SharedItemsImports = 4
+		Gloom.CShared\Gloom.CShared.vcxitems*{e25247d6-a8e8-414b-948d-7def4e8e0372}*SharedItemsImports = 4
 		Gloom.Shared\Gloom.Shared.projitems*{f8d06567-c3bf-4f97-83dc-6d73fc1f4e14}*SharedItemsImports = 5
+		Gloom.CShared\Gloom.CShared.vcxitems*{fcc333ee-d2cc-4e1c-b046-90ba1e4ab2c1}*SharedItemsImports = 9
 	EndGlobalSection
 EndGlobal

