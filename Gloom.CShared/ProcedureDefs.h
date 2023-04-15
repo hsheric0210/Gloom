@@ -1,5 +1,4 @@
 #pragma once
-#include "pch.h"
 
 // kernel32
 typedef HANDLE(WINAPI *MyOpenProcess)(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwProcessId);

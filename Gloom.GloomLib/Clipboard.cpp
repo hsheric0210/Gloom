@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Clipboard.h"
 
 LPVOID ClipboardData(UINT format)
@@ -27,10 +28,12 @@ DWORD ClipIndex()
 	return ((MyGetClipboardSequenceNumber)SilentProcAddr(MODULE_USER32, PROC_GetClipboardSequenceNumber))();
 }
 
-DWORD ClipTextSize()
+INT ClipTextSize()
 {
 	LPVOID data = ClipboardData(CF_UNICODETEXT);
-	auto length = (DWORD)wcslen((LPWSTR)data);
+	if ((UINT_PTR)data < 0) // error
+		return (INT)data;
+	auto length = (INT)wcslen((LPWSTR)data);
 	ClipboardCleanup(data);
 	return length;
 }

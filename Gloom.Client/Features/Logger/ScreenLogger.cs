@@ -1,8 +1,6 @@
-﻿using Serilog;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 using System.Linq;
-using System.Drawing.Imaging;
 
 namespace Feckdoor.InputLog
 {

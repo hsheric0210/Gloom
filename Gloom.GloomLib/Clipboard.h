@@ -4,5 +4,5 @@
 #include "ProcedureDefs.h"
 #include "util.h"
 
-DllExport DWORD ClipTextSize();
+DllExport INT ClipTextSize();
 DllExport void ClipTextCopy(DWORD bufferSize, LPWSTR buffer);

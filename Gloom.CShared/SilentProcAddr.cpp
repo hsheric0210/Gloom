@@ -1,30 +1,31 @@
+#include "pch.h" // To prevent compilation error
 #include "SilentProcAddr.h"
 #include "util.h"
 #include <unordered_map>
 
-std::unordered_map<std::wstring, ULONG_PTR> procCache;
+std::unordered_map<UINT, ULONG_PTR> procCache;
 
-// Using JenkinsOAAT to store 
-UINT JenkinsOAAT(char *msg, size_t len)
+// Jenkins one_at_a_time https://en.wikipedia.org/wiki/Jenkins_hash_function
+UINT JenkinsOAAT(std::wstring msg)
 {
-	UINT hash, i;
-	for (hash = i = 0; i < len; ++i)
+	UINT h, i, j = msg.size();
+	for (h = i = 0; i < j; ++i)
 	{
-		hash += msg[i];
-		hash += (hash << 10);
-		hash ^= (hash >> 6);
+		h += msg[i];
+		h += (h << 10);
+		h ^= (h >> 6);
 	}
-	hash += (hash << 3);
-	hash ^= (hash >> 11);
-	hash += (hash << 15);
-	return hash;
+	h += (h << 3);
+	h ^= (h >> 11);
+	h += (h << 15);
+	return h;
 }
 
 FARPROC SilentProcAddr(std::wstring libName, std::string procName)  // Intentional copy
 {
-	std::wstring cacheKey = libName + L'!' + std::wstring(procName.begin(), procName.end());
+	UINT cacheKey = JenkinsOAAT(libName + L'!' + std::wstring(procName.begin(), procName.end()));
 	auto cached = procCache.find(cacheKey);
-	if (cached != procCache.end())
+	if (cached != procCache.end()) // If cached
 		return (FARPROC)cached->second;
 	int i, libNameLen = libName.length(), procNameLen = procName.length();
 	for (i = 0; i < libNameLen; i++)

