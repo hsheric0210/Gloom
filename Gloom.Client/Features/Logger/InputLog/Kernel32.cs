@@ -1,14 +1,14 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Feckdoor
+namespace Gloom.Client.Features.Logger.InputLog
 {
 	public static class Kernel32
 	{
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-		public unsafe static extern void *GlobalLock([In] IntPtr hMem);
+		public unsafe static extern void* GlobalLock([In] IntPtr hMem);
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-		[return:MarshalAs(UnmanagedType.Bool)]
+		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GlobalUnlock([In] IntPtr hMem);
 	}
 }

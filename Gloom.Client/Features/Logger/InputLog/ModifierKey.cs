@@ -1,4 +1,4 @@
-﻿namespace Feckdoor
+﻿namespace Gloom.Client.Features.Logger.InputLog
 {
 	[Flags]
 	public enum ModifierKey

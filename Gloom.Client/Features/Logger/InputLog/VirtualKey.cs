@@ -1,8 +1,7 @@
-﻿
-// From fabriciorissetto/KeystrokeAPI
+﻿// From fabriciorissetto/KeystrokeAPI
 // https://github.com/fabriciorissetto/KeystrokeAPI/blob/master/Keystroke.API/Entities/KeyCode.cs
 
-namespace Feckdoor
+namespace Gloom.Client.Features.Logger.InputLog
 {
 	internal static class VkHelper
 	{
@@ -12,7 +11,7 @@ namespace Feckdoor
 
 		private static V GetValueCached<K, V>(this VirtualKey vkCode, IDictionary<VirtualKey, V> cache, Func<K, V> getter, V? defaultValue = default)
 		{
-			if (cache.TryGetValue(vkCode, out V? value))
+			if (cache.TryGetValue(vkCode, out var value))
 				return value;
 
 			if (value == null)
@@ -25,17 +24,17 @@ namespace Feckdoor
 		}
 
 
-		private static string? GetName(this VirtualKey vkCode) => GetValueCached<VkNameAttribute, string?>(vkCode, NameCache, (attr) => attr.Name);
+		private static string? GetName(this VirtualKey vkCode) => vkCode.GetValueCached<VkNameAttribute, string?>(NameCache, (attr) => attr.Name);
 
-		private static string? GetShiftedName(this VirtualKey vkCode) => GetValueCached<VkShiftNameAttribute, string?>(vkCode, ShiftNameCache, (attr) => attr.Name);
+		private static string? GetShiftedName(this VirtualKey vkCode) => vkCode.GetValueCached<VkShiftNameAttribute, string?>(ShiftNameCache, (attr) => attr.Name);
 
-		public static ModifierKey? GetModifier(this VirtualKey vkCode) => GetValueCached<VkModifierAttribute, ModifierKey>(vkCode, ModifierCache, (attr) => attr.ModifierKey);
+		public static ModifierKey? GetModifier(this VirtualKey vkCode) => vkCode.GetValueCached<VkModifierAttribute, ModifierKey>(ModifierCache, (attr) => attr.ModifierKey);
 
 		public static bool GetVkName(this VirtualKey vkCode, ModifierKey modifier, ref string prevName)
 		{
 			if (modifier.HasFlag(ModifierKey.Shift))
 			{
-				string? shifted = vkCode.GetShiftedName();
+				var shifted = vkCode.GetShiftedName();
 				if (shifted != null)
 				{
 					prevName = shifted;
@@ -43,7 +42,7 @@ namespace Feckdoor
 				}
 			}
 
-			string? name = vkCode.GetName();
+			var name = vkCode.GetName();
 			if (name != null)
 			{
 				prevName = name;
